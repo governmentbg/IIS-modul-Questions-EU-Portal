@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+
+<h:head></h:head>
+<body>
+	<p:panel header="Basic" footer="Movie Details" style="margin-bottom:20px">
+	<h:panelGrid columns="2">
+	<h:outputLabel value="dateTime:" /> #{now}
+	<h:outputLabel value="UserID:"/>#{userData.idLice}
+	<h:outputLabel value="SystemOptions.size:" />#{systemData.selectOptionsList().size()}
+	</h:panelGrid>
+	</p:panel>
+</body>
+
+</html>

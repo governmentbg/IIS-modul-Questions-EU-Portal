@@ -1,0 +1,123 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:ibg="http://java.sun.com/jsf/composite/components">
+
+	<h:form id="formEuroOtchetEdit">
+
+		<div class="#{guestPreferences.containerPosition}">
+
+			<p:toolbar id="tlbButton" rendered="#{isView eq 0}">
+
+				<f:facet name="left">
+					<p:commandButton icon="fas fa-save"
+						value="#{ui_labels['general.save']}" id="btnSave"
+						partialSubmit="true" update="formEuroOtchetEdit @this"
+						action="#{euroOtchetEdit.actionSave}" />
+				</f:facet>
+
+				<f:facet name="right">
+					<p:commandButton icon="fas fa-times" id="btnDelete"
+						value="#{ui_labels['general.delete']}" partialSubmit="true"
+						update="formEuroOtchetEdit" process="formEuroOtchetEdit @this"
+						rendered="#{euroOtchetEdit.euroOtchet.id ne null}"
+						action="#{euroOtchetEdit.actionDelete}"
+						styleClass="ui-button-danger">
+						<p:confirm header="#{ui_labels['general.comfirmation']}"
+							message="#{beanMessages['euroOtchetEdit.sureDeleteOtchet']}"
+							icon="ui-icon-alert" />
+					</p:commandButton>
+				</f:facet>
+
+			</p:toolbar>
+
+			<div class="card" jsf:id="euroOtchet">
+
+				<div class="p-grid ui-fluid" jsf:id="dataOtchet">
+
+					<!-- ДАТА -->
+					<div class="p-col-12 p-sm-12 p-md-4 p-lg-2">
+						<h:outputText value="#{ui_labels['general.date']}"
+							styleClass="#{isView eq 1 ? 'form-label' : 'form-label req'}" />
+						
+						<p:datePicker  id="dateReg"  showIcon="true" mask="true"   pattern="dd.MM.yyyy" locale="bg" rendered="#{isView ne 1}"
+						    value="#{euroOtchetEdit.euroOtchet.datOtchet}" >
+						    <p:ajax event="change" update="dataOtchet" />
+							<p:ajax event="dateSelect" update="dataOtchet" />
+						</p:datePicker>    
+						<p:inputText id="dateRegV" rendered="#{isView eq 1}" value="#{euroOtchetEdit.euroOtchet.datOtchet}" readonly="true">
+						   <f:convertDateTime  pattern="dd.MM.yyyy" timeZone="#{euroOtchetEdi.timeZone}"/>
+						</p:inputText>	
+					</div>
+
+					<!-- ВИД -->
+					<div class="p-col-12 p-sm-12 p-md-4 p-lg-2">
+						<h:outputText value="#{ui_labels['classif.vid']}"
+							styleClass="form-label" />
+						<p:selectOneMenu value="#{euroOtchetEdit.euroOtchet.vid}"
+							id="otchetVid" disabled="#{isView eq 1}">
+							<f:selectItem value="#{null}" itemValue="#{null}" />
+							<f:selectItems
+								value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_VID_OTCHET_MS, now, euroOtchetEdit.currentLang)}"
+								var="itemSc" itemLabel="#{itemSc.tekst}"
+								itemValue="#{itemSc.code}" />
+						</p:selectOneMenu>
+					</div>
+
+
+					<!-- ОТНОСНО -->
+					<div class="p-col-12 p-sm-12 p-md-12 p-lg-12">
+						<h:outputText value="#{labels['euroOtchetSearchList.otnosno']}"
+							styleClass="#{isView eq 1 ? 'form-label' : 'form-label req'}" />
+						<p:inputTextarea id="otchetOtnosno"
+							value="#{euroOtchetEdit.euroOtchet.anot}" rows="3" readonly="#{isView eq 1}" />
+					</div>
+
+					<!-- АДРЕСАТ -->
+					<div class="p-col-12 p-sm-12 p-md-8 ">
+						<h:outputText value="#{labels['euroOtchetSearchList.adresat']}"
+							styleClass="#{isView eq 1 ? 'form-label' : 'form-label req'}" />
+						<ibg:selectOneModalA id="otchetAdresat"
+							codeClassif="#{EuroConstants.CODE_SYSCLASS_MS}"
+							selectedCode="#{euroOtchetEdit.euroOtchet.adresat}"
+							dateClassif="#{euroOtchetEdit.euroOtchet.datOtchet}"
+							filtered="false" saveStateTree="false"
+							header="#{labels['euroOtchetSearchList.adresat']}"
+							withBtnClear="true" compType="2" styleAutoComp="" disabledInp="#{isView eq 1}" />
+					</div>
+
+					<!-- Статус -->
+					<div class="p-col-12 p-sm-12 p-md-4 p-lg-2">
+						<h:outputText value="#{labels['euroOtchetSearchList.status']}"
+							styleClass="#{isView eq 1 ? 'form-label' : 'form-label req'}" />
+						<p:selectOneMenu value="#{euroOtchetEdit.euroOtchet.status}"
+							id="otchetStatus" disabled="#{isView eq 1}" >
+							<f:selectItem value="#{null}" itemValue="#{null}" />
+							<f:selectItems
+								value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_STATUS_OTCHET_MS, now, euroOtchetEdit.currentLang)}"
+								var="itemSc" itemLabel="#{itemSc.tekst}"
+								itemValue="#{itemSc.code}" />
+						</p:selectOneMenu>
+					</div>
+
+
+					<!-- ЗАБЕЛЕЖКА -->
+					<div class="p-col-12 p-sm-12 p-md-12 p-lg-12">
+						<h:outputText value="#{labels['euroAct.note']}"
+							styleClass="form-label" />
+						<p:inputTextarea id="otchetComment"
+							value="#{euroOtchetEdit.euroOtchet.comment}" rows="3" readonly="#{isView eq 1}"/>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</h:form>
+
+</ui:composition>
+
+

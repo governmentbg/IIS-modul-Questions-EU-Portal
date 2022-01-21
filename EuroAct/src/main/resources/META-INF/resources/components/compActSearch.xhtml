@@ -1,0 +1,154 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:c="http://java.sun.com/jstl/core"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:cc="http://java.sun.com/jsf/composite"
+	  xmlns:pe="http://primefaces.org/ui/extensions"
+	  xmlns:ibg="http://java.sun.com/jsf/composite/components" > 	  	  
+
+<cc:interface componentType="compActSearch">
+   		  
+   <cc:attribute name="codeAct"	        type="java.lang.Integer" shortDescription="code на акт" deafult="null" />
+   <cc:attribute name="searchTxt"	    type="java.lang.String"  shortDescription="Предварително подаден текст за търсене по име на акт" deafult="null"/>
+   <cc:attribute name="dateClassif"   	type="java.util.Date"    shortDescription="Дата, към която да се заредят класификации и за разкодиране. По подразбиране - днешна дата." />
+   <cc:attribute name="update" 		  	type="java.lang.String"  shortDescription="Полета, които трябва да се обновят" />
+   <cc:attribute name="readonly"       	type="java.lang.Boolean" shortDescription="Само за разглеждане" default="false" />
+   <cc:attribute name="onComplete"     	type="java.lang.String"  shortDescription="Изпълнява функция при връщане на резултата - подава се името на функцията" />
+   <cc:attribute name="onlySadAct"      type="java.lang.Boolean" shortDescription="За тълкователните решения да се зареждат само съдебните актове - да(true); не(false)." default="false" />
+   
+   <cc:attribute name="modal"       	type="java.lang.Boolean" shortDescription="Tърсенето е отворено в модален диалог(true) или не(false)." default="true" />
+ 
+</cc:interface>
+
+<cc:implementation>
+
+ <f:event type="preRenderComponent" listener="#{cc.initActSearch(true)}" /> <!--  За да се инициализира компонентата--> 
+
+		<!-- Разширено търсене на акт -->											
+  														
+	<h:panelGroup id="panelFilterAct"  rendered="#{cc.showMe}"   
+        onkeypress="if(event.keyCode == 13) {event.preventDefault();  document.getElementById('#{cc.clientId}:btnSearchComp').click();}">
+    	
+    	<div class="card">
+	    	
+	    	<div class="p-grid ui-fluid"> 
+	    	
+	    		<!-- Номер на акта -->	
+				<div class="p-col-12 p-sm-12 p-md-6 p-lg-4 p-xl-4  ui-fluid">
+					<h:outputText value="#{labels['euroActsList.nomer']}" styleClass="form-label" />
+					<p:inputText id="nomerAct" value="#{cc.actSearch.nomerFull}" />
+				</div>
+				
+				<!-- Година на акта -->	
+				<div class="p-col-12 p-sm-2 p-md-2 p-lg-2 p-xl-2  ui-fluid">
+					<h:outputText value="#{labels['euroActsList.year']}" styleClass="form-label" />
+					<p:inputText id="godinaAct" value="#{cc.actSearch.godina}" maxlength="4"/>
+				</div>
+
+				<!-- Вид на акта -->	
+				<div class="p-col-12 p-sm-6 p-md-6 p-lg-6  p-xl-6  ui-fluid">
+					<h:outputText value="#{labels['euroActsList.vid']}" styleClass="form-label"/>
+					<ibg:selectOneModalA id="vidAct" readonly="#{cc.attrs.onlySadAct}"
+						codeClassif="#{EuroConstants.CODE_SYSCLASS_VID_ACT}" 
+						selectedCode="#{cc.actSearch.vidAct}" 
+						filtered="false" saveStateTree="true" header="#{labels['euroActsList.vid']}" 
+						withBtnClear="true" compType="2" styleAutoComp="" isSelectNode="true"/>	
+				</div>
+
+				<!-- Наименование -->		
+				<div class="p-col-12 p-sm-12 p-md-12 p-lg-12 p-xl-12 ui-fluid">	
+					<h:outputText value="#{labels['euroActsList.naim']}" styleClass="form-label"/>
+					<p:inputText id="naimAct" value="#{cc.actSearch.partIme}" />													  
+				</div>	
+							
+			</div>
+			
+			<div class="filter-buttons">
+				
+				<p:commandButton id="btnSearchComp" 						
+					    actionListener="#{cc.actionSearchAct}"
+						partialSubmit="true" 
+						process="@this  #{cc.clientId}:panelFilterAct" 
+						update="#{cc.clientId}:panelTblActs" 
+						icon="fas fa-search"  
+						value="#{ui_labels['general.search']}"/>
+				<p:defaultCommand target="btnSearchComp" />
+			
+				<p:commandButton 					    
+						id="btnClearComp" 
+						actionListener="#{cc.actionClearAct}"
+						partialSubmit="true"
+						process="@this  #{cc.clientId}:panelFilterAct" 
+						update="#{cc.clientId}:panelFilterAct"
+						icon="fas fa-eraser"  	styleClass="ui-button-warning"
+					    value="#{ui_labels['general.clear']}" /> 
+			
+			</div>
+			
+		</div>
+	
+		<h:panelGroup id="panelTblActs" layout="block" styleClass="margin-top">	  
+			
+			<h:panelGroup layout="block" styleClass="card">
+				
+				<h:outputText value="#{ui_labels['general.reportResult']} #{cc.actsList.rowCount}" rendered="#{cc.actsList.rowCount > 0}" id="result"/>			
+			
+				<p:dataTable id="tblActsList" var="row" value="#{cc.actsList}" lazy="true" 	
+							rowIndexVar="idx" sortMode="single" reflow="true" 
+							emptyMessage="#{cc.actsList eq null ? '' : ui_labels['general.norows']}" 
+							paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+							rows="5" rowsPerPageTemplate="5,15,20,25" paginatorPosition="bottom"
+							paginatorAlwaysVisible="false" paginator="true" >
+												
+				  	<p:column  style="text-align: center" width="30" rendered="false">
+						<f:facet name="header">
+				               #{labels['general.No-symbol']}  
+				         </f:facet>
+						<h:outputText value="#{idx + 1}" />
+					</p:column>	
+					
+					<p:column style="text-align: center" width="50" exportable="false" rendered="#{cc.attrs.modal}" >
+					
+					<p:commandButton id="btnChAct" rendered="#{cc.attrs.modal}" 
+						    title="#{ui_labels['general.choise']}"									
+						    action="#{cc.actionModalSelectAct(row)}"					
+						    partialSubmit="true" 
+						    process="#{cc.attrs.update}  #{cc.clientId}:panelFilterAct @this"
+							update="#{cc.attrs.update}  #{cc.clientId}:panelFilterAct"
+							icon="fas fa-hand-point-down" styleClass="btn-normal"/>											
+					</p:column>	
+	
+					<p:column width="100" sortBy="#{row.A02}" headerText="#{labels['euroActsList.nomer']}">
+						<h:outputText value="#{row[1]}" />
+					</p:column>
+	
+					<p:column width="80" sortBy="#{row.A03}" headerText="#{labels['euroActsList.year']}">
+						<h:outputText value="#{row[2]}" />
+					</p:column>
+	
+					<p:column width="80" sortBy="#{row.A04}" headerText="#{labels['euroActsList.celex']}">
+						<h:outputText value="#{row[3]}" />
+					</p:column>
+	
+					<p:column width="100" sortBy="#{row.A05}" headerText="#{labels['euroActsList.vid']}">
+						<h:outputText value="#{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_VID_ACT, row[4], 1, now)}" />
+					</p:column>
+					
+					<p:column width="400" sortBy="#{row.A06}" headerText="#{labels['euroActsList.naim']}">
+						<h:outputText value="#{row[5]}" />
+					</p:column>
+		
+				</p:dataTable>
+		
+		</h:panelGroup>	
+	
+		</h:panelGroup>
+	
+	</h:panelGroup>
+	
+</cc:implementation>
+	
+</ui:composition>

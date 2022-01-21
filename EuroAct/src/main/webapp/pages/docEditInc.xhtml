@@ -1,0 +1,819 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ibg="http://java.sun.com/jsf/composite/components">
+
+   	<style type="text/css">
+   		@media screen and (max-width: 575px) {
+    		.lg-btn-lg-screen {
+    			display: none;
+    		}
+    		
+    		.lg-btn-sm-screen {
+    			display: block;
+    			margin-left: 1em;
+    			width: 42px !important;
+    		}
+    		
+    		.sm-disappear {
+    			width: 50%;
+    		}
+   		}
+   		
+   		@media screen and (min-width: 576px) {
+    		.lg-btn-lg-screen {
+    			display: block;
+    			width: auto !important;
+    			margin-left: 1em;
+    		}
+    		
+    		.lg-btn-sm-screen {
+    			display: none;
+    		}
+    		
+    		.sm-disappear {
+    			width: 0;
+    		}
+   		}
+   		
+   		@media screen and (max-width: 767px) {
+    		.toolbar-adaptive .toolbar-button-sm {
+    			display: inline-block;
+    		}
+    		.toolbar-adaptive .toolbar-button-lg {
+    			display: none;
+    		}
+   		}
+   		
+   		@media screen and (min-width: 768px) {
+    		.toolbar-adaptive .toolbar-button-sm {
+    			display: none;
+    		}
+    		.toolbar-adaptive .toolbar-button-lg {
+    			display: inline-block;
+    		}
+   		}
+   		
+   		.selectModalA .ui-autocomplete-multiple-container {
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+		
+		.selectModalA .ui-button:last-child {
+			border-top-right-radius: 4px;
+			border-bottom-right-radius: 4px;
+		}
+		
+		.ui-chips-token.custom-chips .ui-chips-token-label {
+			padding-right: 3em;
+		}
+		
+		.ui-chips-token.custom-chips.view .ui-chips-token-label {
+			padding-right: 2.1em;
+		}
+		
+		.ui-chips-token.custom-chips .ui-chips-token-icon.bonus-icon {
+			right: 1.6em;
+		}
+		
+		.ui-chips-token.custom-chips.view .ui-chips-token-icon.bonus-icon {
+			right: 0.8em;
+		}
+		
+   	</style>
+    
+	<h:form prependId="false">
+		
+		<div class="#{guestPreferences.containerPosition}">
+		
+			<p:toolbar id="tlbButton" styleClass="toolbar-adaptive" rendered="#{docEdit.euroDoc != null}">
+
+				<f:facet name="left">
+					<div jsf:rendered="#{isView != 1}">
+					<p:commandButton value="Запис" actionListener="#{docEdit.actionSave}" update="tlbButton eurodoc" icon="fas fa-save" styleClass="toolbar-button-lg"/>
+						<p:commandButton title="Запис" actionListener="#{docEdit.actionSave}" update="tlbButton eurodoc" icon="fas fa-save" styleClass="toolbar-button-sm"/>
+					
+						<span class="fas fa-ellipsis-v SoftGray p-mx-2" />
+						
+						
+						<p:commandButton value="#{labels['docEdit.newDoc']}" update="tlbButton eurodoc" actionListener="#{docEdit.actionNew}" icon="fas fa-file" styleClass="toolbar-button-lg"/>
+						<p:commandButton title="#{labels['docEdit.newDoc']}" update="tlbButton eurodoc" actionListener="#{docEdit.actionNew}" icon="fas fa-file" styleClass="toolbar-button-sm"/>
+						
+						<p:commandButton rendered="false" value="#{labels['docEdit.rabotaNs']}" icon="fas fa-briefcase" styleClass="toolbar-button-lg ui-button-dark"/>
+						<p:commandButton rendered="false" title="#{labels['docEdit.rabotaNs']}" icon="fas fa-briefcase" styleClass="toolbar-button-sm ui-button-dark"/>
+						
+						<span class="fas fa-ellipsis-v SoftGray p-mx-2" />
+												
+						<p:fileUpload listener="#{docEdit.actionLoadZip}" mode="advanced" multiple="false" allowTypes="/(\.|\/)(zip)$/" accept=".zip" auto="true" process="idpublish"
+										label="#{labels['docEdit.zarejdaneZip']}" chooseIcon="far fa-file-archive" update="tlbButton eurodoc" styleClass="toolbar-button-lg" sizeLimit="25000000" 
+										invalidSizeMessage="Максималният размер на файла трябва да е 25 мб."/>
+						<p:fileUpload listener="#{docEdit.actionLoadZip}" mode="advanced" multiple="false" allowTypes="/(\.|\/)(zip)$/" accept=".zip" auto="true"  process="idpublish"
+										label="#{labels['docEdit.zarejdaneZip']}" chooseIcon="far fa-file-archive" update="tlbButton eurodoc" styleClass="toolbar-button-sm" sizeLimit="25000000"
+										invalidSizeMessage="Максималният размер на файла трябва да е 25 мб."/>
+						
+						<span class="fas fa-ellipsis-v SoftGray p-mx-2" />
+						 
+						<p:selectBooleanCheckbox value="#{docEdit.publish}" itemLabel="#{labels['docEdit.publikuvane']}" id="idpublish"/>
+					</div>
+				</f:facet>
+
+				<f:facet name="right">
+					<p:commandButton title="#{labels['docEdit.exportHtml']}" ajax="false" actionListener="#{docEdit.export(1)}" disabled="#{docEdit.euroDoc.id == null}" icon="fab fa-internet-explorer" styleClass="ui-button-info" />
+					<p:commandButton title="#{labels['docEdit.exportDoc']}" ajax="false" actionListener="#{docEdit.export(2)}" disabled="#{docEdit.euroDoc.id == null}" icon="fas fa-file-word" styleClass="ui-button-info" />
+					
+					<div style="display: inline-block;" jsf:rendered="#{isView != 1}">
+						<span class="p-mx-2" style="padding-right: 5px;"> 
+							<span class="fas fa-ellipsis-v SoftGray" />
+						</span>
+						<p:commandButton value="#{ui_labels['general.delete']}" actionListener="#{docEdit.actionDelete}" update="tlbButton eurodoc" disabled="#{docEdit.euroDoc.id == null}" icon="fas fa-times" styleClass="toolbar-button-lg ui-button-danger">
+							<p:confirm message="#{beanMessages['docEdit.iztrivane']}" icon="fas fa-exclamation-triangle" />
+						</p:commandButton>
+						<p:commandButton title="#{ui_labels['general.delete']}" actionListener="#{docEdit.actionDelete}" update="tlbButton eurodoc" disabled="#{docEdit.euroDoc.id == null}" icon="fas fa-times" styleClass="toolbar-button-sm ui-button-danger">
+							<p:confirm message="#{beanMessages['docEdit.iztrivane']}" icon="fas fa-exclamation-triangle" />
+						</p:commandButton>
+					</div>
+				</f:facet>
+
+			</p:toolbar>
+			
+			<div class="card" jsf:id="eurodoc" rendered="#{docEdit.euroDoc != null}">
+				<div> 
+					<div class="p-grid">
+						
+						<div class="p-col-12 p-md-10 p-lg-8 p-xl-6">
+							<div class="p-grid ui-fluid p-align-end">
+								<div class="p-col-12">
+									<div class="form-label">#{labels['docList.signaturaDok']}</div>
+									<div style="display: flex; align-items: center;">
+										<p:selectBooleanCheckbox value="#{docEdit.signaturaChecked}" rendered="#{isView != 1}" style="margin-right: 1em;">
+											<p:ajax event="change" partialSubmit="true" process="@this" update="signatura" listener="#{docEdit.actionToggleSignatura}"/>
+										</p:selectBooleanCheckbox>
+										<div jsf:id="signatura" class="ui-fluid" style="#{isView != 1 ? 'flex-grow: 1;' : 'width: 66%;'}">
+											<div class="ui-inputgroup inputgroup-bordered" jsf:rendered="#{!docEdit.signaturaChecked}">									
+												<p:selectOneMenu id="inputSignaturaSeria" var="i" value="#{docEdit.signaturaSeriaObj}" rendered="#{isView != 1}">
+													<f:selectItem itemValue="#{null}" itemLabel="#{null}" />
+													<f:selectItems value="#{docEdit.signaturaOptions}" var="option" itemLabel="#{option.tekst}" itemValue="#{option}" />
+													<p:column>
+								                       #{i.tekst}
+							                      	</p:column>
+													<p:column>
+								                       #{i.dopInfo}
+								                    </p:column>
+								                    <p:ajax event="change" partialSubmit="true" process="@this" listener="#{docEdit.actionSelectSignatura}" update="tlbButton eurodoc" />
+												</p:selectOneMenu> 
+												
+												<p:inputText value="#{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_SIGNATURA_SERIA, docEdit.signSeria, docEdit.currentLang, now)}" rendered="#{isView == 1}" readonly="true">
+													<p:ajax event="valueChange" partialSubmit="true" process="@this" listener="#{docEdit.actionSearchOnSignaturaBlur}" update="tlbButton eurodoc" />
+												</p:inputText>
+												
+												<p:inputText id="inputSignaturaGodina" value="#{docEdit.signGodina}" placeholder="#{labels['docList.godina']}" maxlength="4" readonly="#{isView == 1}">
+													<p:keyFilter regEx="/[\d]/"/>
+													<p:ajax event="valueChange" partialSubmit="true" process="@this" listener="#{docEdit.actionSearchOnSignaturaBlur}" update="tlbButton eurodoc" />
+												</p:inputText>
+												
+												<p:inputText id="inputSignaturaNomer" value="#{docEdit.signNomer}" placeholder="#{labels['docList.nomer']}" readonly="#{isView == 1}">
+													<p:keyFilter regEx="/[\d]/"/>
+													<p:ajax event="valueChange" partialSubmit="true" process="@this" listener="#{docEdit.actionSearchOnSignaturaBlur}" update="tlbButton eurodoc" />
+												</p:inputText>
+											</div>
+											<p:inputText id="inputSignatura" value="#{docEdit.sign}" rendered="#{docEdit.signaturaChecked}" >
+												<p:ajax event="valueChange" partialSubmit="true" process="@this" listener="#{docEdit.actionSearchOnSignaturaBlur}" update="tlbButton eurodoc" />
+											</p:inputText>
+										</div>
+									</div>
+								</div>
+								
+								<div class="p-col-6 p-sm-4">
+									<div class="form-label">#{labels['docList.dokData']}</div>
+								
+									<p:datePicker showIcon="true" mask="true"   pattern="dd.MM.yyyy" locale="bg"  rendered="#{isView ne 1}" value="#{docEdit.euroDoc.datDoc}"/>
+									<p:inputText rendered="#{isView eq 1}" value="#{docEdit.euroDoc.datDoc}" readonly="true">
+									   <f:convertDateTime  pattern="dd.MM.yyyy" timeZone="#{docEdit.timeZone}"/>
+									</p:inputText>   
+								</div>
+								<div class="sm-disappear" />
+								<div class="p-col-6 p-sm-4">
+									<div class="form-label">#{labels['docEdit.dataChasIzprashtane']}</div>
+									<ui:remove>
+									<!-- 
+									<p:calendar id="inputDataIzpr" value="#{docEdit.euroDoc.datIzpr}" pattern="dd.MM.yyyy, HH:mm:ss" mask="99.99.9999, 99:99:99" showOn="#{isView == 1 ? '' :'button'}" readonly="#{isView == 1}" 
+										defaultHour="#{now.hours}" defaultMinute="#{now.minutes}" defaultSecond="#{now.seconds}" />
+									 -->
+									</ui:remove>	
+									<p:datePicker id="inputDataIzpr" showIcon="true" mask="99.99.9999, 99:99:99"   pattern="dd.MM.yyyy, HH:mm:ss" locale="bg"  rendered="#{isView ne 1}" 
+										value="#{docEdit.euroDoc.datIzpr}" />
+									<p:inputText rendered="#{isView eq 1}" value="#{docEdit.euroDoc.datIzpr}" readonly="true">
+									   <f:convertDateTime  pattern="dd.MM.yyyy" timeZone="#{docEdit.timeZone}"/>
+									</p:inputText>   
+								</div>
+								<div class="p-col-6 p-sm-4">
+									<div class="form-label">#{labels['docEdit.dataChasPoluchavane']}</div>
+									
+									<p:datePicker   showIcon="true" mask="true"   pattern="dd.MM.yyyy, HH:mm:ss" locale="bg" rendered="#{isView ne 1}"
+						    			value="#{docEdit.euroDoc.datPoluch}" >
+						    		</p:datePicker>
+									<p:inputText rendered="#{isView eq 1}" value="#{docEdit.euroDoc.datPoluch}" readonly="true">
+									   <f:convertDateTime  pattern="dd.MM.yyyy, HH:mm:ss" timeZone="#{docEdit.timeZone}"/>
+									</p:inputText>	
+								</div>
+								
+								<div class="p-col">
+									<div class="form-label">#{labels['docEdit.sastoianie']}</div>
+									<p:selectOneMenu value="#{docEdit.euroDoc.status}" rendered="#{isView != 1}">
+										<f:selectItem value="#{null}" itemValue="#{null}" />
+										<f:selectItems value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_STATUS, now, docEdit.currentLang)}"
+											var="item" itemLabel="#{item.tekst}" itemValue="#{item.code}" />
+									</p:selectOneMenu>
+									<p:inputText value="#{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_STATUS, docEdit.euroDoc.status, docEdit.currentLang, now)}" rendered="#{isView == 1}" readonly="true" />
+								</div>
+								<div class="p-col-12 p-sm-4">
+									<div class="form-label">#{labels['docEdit.dataSastoianie']}</div>
+									<p:datePicker   showIcon="true" mask="true"   pattern="dd.MM.yyyy" locale="bg" rendered="#{isView ne 1}"
+						    			value="#{docEdit.euroDoc.statusDate}" >
+						    		</p:datePicker>
+									<p:inputText rendered="#{isView eq 1}" value="#{docEdit.euroDoc.statusDate}" readonly="true">
+									   <f:convertDateTime  pattern="dd.MM.yyyy" timeZone="#{docEdit.timeZone}"/>
+									</p:inputText>	
+								</div>
+								
+								<div class="p-col-fixed" style="width:50px">
+									<p:commandButton title="#{labels['docEdit.arhivSastoiania']}" icon="fas fa-search" onclick="PF('statusiModal').show();"/>
+								</div>
+								
+								<p:dialog widgetVar="statusiModal" header="#{labels['docEdit.arhivSastoiania']}" modal="true" width="666px">
+									<div jsf:id="status-arhiv-wrapper" class="p-grid">
+										<div class="p-col-12">
+											<p:dataTable value="#{docEdit.euroDoc.statusi}" var="row" rowIndexVar="index" emptyMessage="#{ui_labels['general.norows']}"
+												rows="10" rowsPerPageTemplate="5,10,15" paginatorPosition="bottom" paginator="true"
+												paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}">
+												
+												<p:column width="25" headerText="#{ui_labels['general.No-symbol']}">
+													<h:outputText value="#{index + 1}" />
+												</p:column>
+												
+												<p:column headerText="#{labels['docEdit.sastoianie']}">
+													<h:outputText value="#{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_STATUS, row.status, docEdit.currentLang, now)}" />
+												</p:column>
+												
+												<p:column width="120" headerText="#{labels['docEdit.dataSastoianie']}">
+													<h:outputText value="#{row.datStatus}">
+														<f:convertDateTime pattern="dd.MM.yyyy" timeZone="#{docEdit.timeZone}"/>
+													</h:outputText>
+												</p:column>
+												
+												<p:column width="36" style="text-align: center;" rendered="#{isView != 1}">
+													<p:commandButton actionListener="#{docEdit.actionDeleteStatus(index)}" icon="fas fa-trash"
+														title="#{ui_labels['general.delete']}" styleClass="ui-button-danger" 
+														update="status-arhiv-wrapper" partialSubmit="true" process="@this"/>
+												</p:column>
+												
+											</p:dataTable>
+										</div>
+									</div>
+								</p:dialog>
+							</div>
+							
+						</div>
+						
+						<div style="width: 100%"></div>
+					
+						<div class="p-col-12 p-lg-6 margin-top">
+							<!-- Междуинституционално досие -->
+							<div class="title-group">
+								<p:commandLink styleClass="extended-search-toggle expanded"
+									onclick="toggleSection(this, '#dosie')">
+									<h:outputText value="#{labels['docList.mejduinstitucionalnoDosie']}" />
+									<i class="fas fa-caret-right"></i>
+								</p:commandLink>
+								<p:commandButton title="#{labels['docEdit.dobaviane']}" icon="fas fa-plus" onclick="$('#dosieFields').slideToggle()" style="margin-left: 1em;" />
+							</div>
+							<div id="dosie">
+								<div class="p-grid">
+									<div class="p-col-12 p-sm-8 ui-fluid" jsf:rendered="#{isView != 1}">
+										<div id="dosieFields" class="ui-fluid" style="display: none;">
+											<div class="ui-inputgroup inputgroup-bordered">		
+												<p:inputText id="dosieGodina" value="#{docEdit.tempDosie.signGodina}" placeholder="#{labels['docList.godina']}" maxlength="4">
+													<p:keyFilter regEx="/[\d]/"/>
+													<p:ajax event="valueChange" partialSubmit="true" process="@this" listener="#{docEdit.actionOnDosieBlur}" update="dosieNomer dosieGodina dosieSeria dosietaList" />
+												</p:inputText>
+												
+												<p:inputText id="dosieNomer" value="#{docEdit.tempDosie.signNomer}" placeholder="#{labels['docList.nomer']}" >
+													<p:keyFilter regEx="/[\d]/"/>
+													<p:ajax event="valueChange" partialSubmit="true" process="@this" listener="#{docEdit.actionOnDosieBlur}" update="dosieNomer dosieGodina dosieSeria dosietaList" />
+												</p:inputText>
+												
+												<p:selectOneMenu id="dosieSeria" var="i" value="#{docEdit.procSeria}" autoWidth="false">
+													<f:selectItem itemValue="#{null}" itemLabel="" />
+													<f:selectItems value="#{docEdit.procOptions}" var="option" itemLabel="#{option.tekst}" itemValue="#{option}" />
+													<p:column>
+								                    	#{i.tekst}
+							                      	</p:column>
+													<p:column>
+								                    	#{i.dopInfo}
+								                    </p:column>
+								                    <p:ajax event="change" partialSubmit="true" process="@this" listener="#{docEdit.actionSelectProc}" update="dosieNomer dosieGodina dosieSeria dosietaList" />
+												</p:selectOneMenu> 
+									
+											</div>
+											<p:inputText rendered="false" />
+										</div>
+									</div>
+									
+									<div jsf:id="dosietaList" class="p-col-12 ui-fluid">
+										<div class="ui-chips ui-widget" jsf:rendered="#{docEdit.euroDoc.dosieta != null and docEdit.euroDoc.dosieta.size() > 0}">
+											<ul class="ui-chips-container ui-corner-all ui-inputfield ui-state-default">
+												<ui:repeat value="#{docEdit.euroDoc.dosieta}" var="dosie" varStatus="index">
+													<li class="ui-chips-token ui-corner-all ui-state-active">
+														<span class="ui-chips-token-label" style="#{isView == 1 ? 'padding: 0 0.5em;' : ''}">#{dosie.sign}</span>
+														<span class="ui-chips-token-icon ui-icon ui-icon-close" onclick="removeDosie([{name: 'index' , value: #{index.index}}])" jsf:rendered="#{isView != 1}" />
+													</li>
+												</ui:repeat>
+											</ul>
+										</div>
+										<p:remoteCommand name="removeDosie" action="#{docEdit.actionDeleteDosie}" update="dosietaList"/>
+									</div>
+									
+								</div>
+							</div>
+							
+							<!-- Език на документа -->
+							<div class="title-group margin-top">
+								<p:commandLink styleClass="extended-search-toggle expanded"
+									onclick="toggleSection(this, '#language')">
+									<h:outputText value="#{labels['docEdit.ezikNaDokument']}" />
+									<i class="fas fa-caret-right"></i>
+								</p:commandLink>
+							</div>
+							<div id="language">
+								<div class="p-grid" jsf:id="languageList">
+									<div class="p-col-12 ui-fluid">
+										<div class="selectModalA" jsf:rendered="#{isView != 1}">
+											<ibg:selectManyModalA id="langsInput" withBtnClear="#{isView != 1}"
+												codeClassif="#{EuroConstants.CODE_SYSCLASS_EZIK}" 
+												dateClassif="#{now}" styleAutoComp=""
+												selectedCodes="#{docEdit.langList}" selectedClassifs="#{docEdit.langClassifs}"
+												itemtipAtPosition="right center" compType="2" maxResults="50" />
+										</div>
+										<div class="ui-chips ui-widget" jsf:rendered="#{isView == 1 and docEdit.langList.size() > 0}">
+											<ul class="ui-chips-container ui-corner-all ui-inputfield ui-state-default">
+												<ui:repeat value="#{docEdit.langList}" var="lang" varStatus="index">
+													<li class="ui-chips-token ui-corner-all ui-state-active">
+														<span class="ui-chips-token-label" style="padding: 0 0.5em">#{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_EZIK, lang, docEdit.currentLang, now)}</span>
+													</li>
+												</ui:repeat>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+						</div>
+						
+						<!-- Номер, годишна програма-->
+						<div class="p-col-12 p-lg-6 margin-top">
+							<div class="title-group">
+								<p:commandLink styleClass="extended-search-toggle expanded "
+									onclick="toggleSection(this, '#numberYear')">
+									<h:outputText value="#{labels['docEdit.nomerGodishnaPrograma']}" />
+									<i class="fas fa-caret-right"></i>
+								</p:commandLink>
+							</div>
+							<div jsf:id="numberYear">
+								<div class="p-grid ui-fluid">
+									<div class="p-col-6">
+										<div class="form-label">#{labels['docEdit.nomerDocument']}</div>
+										<p:inputText value="#{docEdit.euroDoc.uid}" readonly="#{isView == 1}" />
+									</div>
+									<div style="width: 100%"/>
+									
+									<!-- Включен в Годишната работна програма на НС -->
+									<div class="p-col-6">
+										<div style="display: flex; align-items: center">
+											<p:selectBooleanCheckbox id="nsProgCheckbox" value="#{docEdit.nsProgChecked}" disabled="#{isView == 1}">
+												<p:ajax event="change" partialSubmit="true" process="@this" update="nsProg" listener="#{docEdit.actionNsProgCheck}"/>
+											</p:selectBooleanCheckbox>
+											<p:outputLabel for="nsProgCheckbox" value="#{labels['docEdit.vkliuchenProgramaNs']}" class="form-label" style="margin-left: 0.5em;"/>
+										</div>
+										<div jsf:id="nsProg">
+											<div class="ui-inputgroup inputgroup-bordered" style="margin-top: 0.5em" jsf:rendered="#{docEdit.nsProgChecked}">
+												<p:inputText value="#{docEdit.euroDoc.nsProgNomer}" placeholder="#{labels['docList.nomer']}" readonly="#{isView == 1}">
+													<p:keyFilter regEx="/[\d]/"/>
+												</p:inputText>
+												<p:inputText value="#{docEdit.euroDoc.nsProgGodina}" placeholder="#{labels['docList.godina']}" maxlength="4" readonly="#{isView == 1}">
+													<p:keyFilter regEx="/[\d]/"/>
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+									
+									<!-- Включен в Годишната работна програма на МС -->
+									<div class="p-col-6">
+										<div style="display: flex; align-items: center">
+											<p:selectBooleanCheckbox id="msProgCheckbox" value="#{docEdit.msProgChecked}" disabled="#{isView == 1}">
+												<p:ajax event="change" partialSubmit="true" process="@this" update="msProg" listener="#{docEdit.actionMsProgCheck}"/>
+											</p:selectBooleanCheckbox>
+											<p:outputLabel for="msProgCheckbox" value="#{labels['docEdit.vkliuchenProgramaMs']}" class="form-label" style="margin-left: 0.5em;"/>
+										</div>
+										<div jsf:id="msProg">
+											<div class="ui-inputgroup inputgroup-bordered" style="margin-top: 0.5em" jsf:rendered="#{docEdit.msProgChecked}">
+												<p:inputText value="#{docEdit.euroDoc.msProgNomer}" placeholder="#{labels['docList.nomer']}" readonly="#{isView == 1}">
+													<p:keyFilter regEx="/[\d]/"/>
+												</p:inputText>
+												<p:inputText value="#{docEdit.euroDoc.msProgGodina}" placeholder="#{labels['docList.godina']}" maxlength="4" readonly="#{isView == 1}">
+													<p:keyFilter regEx="/[\d]/"/>
+												</p:inputText>
+											</div>
+										</div>
+									</div>
+									
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Работа по процедури -->
+					<div class="margin-top">
+						<div class="title-group">
+							<p:commandLink styleClass="extended-search-toggle expanded "
+								onclick="toggleSection(this, '#procedures')">
+								<h:outputText value="#{labels['docEdit.rabotaProceduri']}" />
+								<i class="fas fa-caret-right"></i>
+							</p:commandLink>
+						</div>
+						
+						<div jsf:id="procedures">
+							<div class="p-grid">
+								<ui:repeat value="#{docEdit.proceduresOptions}" var="proc" varStatus="procIndex">
+									<div class="p-col-12">
+										<div style="display: flex; flex-wrap: wrap;">
+											<div style="min-width: 330px; margin-right: 1em; margin-bottom: 0.5em;">
+												<p:selectBooleanCheckbox id="procedureCheck" value="#{docEdit.proceduresChecked[proc.code]}" disabled="#{isView == 1}">
+													<p:ajax event="change" partialSubmit="true" process="@this" update="procedures" listener="#{docEdit.procedureChecked(proc.code)}" />
+												</p:selectBooleanCheckbox>
+												<p:outputLabel for="procedureCheck" value="#{proc.tekst}" class="form-label" style="margin-left: 0.5em;"/>
+											</div>
+											<div style="display: flex; flex-wrap: wrap;" jsf:rendered="#{docEdit.proceduresChecked[proc.code] and isView != 1}">
+												<p:datePicker id="srok" showIcon="true" mask="true" placeholder="#{labels['docEdit.srok']}"  pattern="dd.MM.yyyy" locale="bg"  
+														value="#{docEdit.proceduresMap[proc.code].srok}"  style="margin-right: 0.5em; margin-bottom: 0.5em;">
+												</p:datePicker>	
+												<div class="ui-inputgroup inputgroup-bordered proceduraFields#{procIndex.index}" style="margin-right: 1em; margin-bottom: 0.5em; display: none;">
+													<p:inputText id="procNomer" value="#{docEdit.tempStanNomer[proc.code]}" placeholder="#{labels['docList.nomer']}">
+														<p:ajax event="valueChange" partialSubmit="true" process="@this" listener="#{docEdit.actionAddStanoviste(proc.code)}" update="procNomer procDate procWrapper" />
+													</p:inputText>
+													
+													<p:datePicker id="procDate" showIcon="true" mask="true" placeholder="#{labels['docList.ot']}"  pattern="dd.MM.yyyy" locale="bg"  
+														value="#{docEdit.tempStanDate[proc.code]}">
+														<p:ajax event="dateSelect" partialSubmit="true" process="@this" listener="#{docEdit.actionAddStanoviste(proc.code)}" update="procNomer procDate procWrapper" />
+													</p:datePicker>
+													
+												</div>
+												<p:commandButton title="#{labels['docEdit.dobaviane']}" onclick="$('.proceduraFields#{procIndex.index}').toggle('slide')" icon="fas fa-plus" style="margin-bottom: 0.5em;" />
+											</div>
+										</div>
+									</div>
+									<div jsf:id="procWrapper" class="p-col-12 ui-fluid">
+										<div class="ui-chips ui-widget" jsf:rendered="#{docEdit.proceduresChecked[proc.code] and docEdit.proceduresMap[proc.code].stanovista.size() > 0}">
+											<ul class="ui-chips-container ui-corner-all ui-inputfield ui-state-default">
+												<ui:repeat value="#{docEdit.proceduresMap[proc.code].stanovista}" var="stan" varStatus="stanIndex">
+													<li class="ui-chips-token ui-corner-all ui-state-active">
+														<span class="ui-chips-token-label" style="#{isView == 1 ? 'padding: 0 0.5em;' : ''}">
+															#{stan.rnDoc} #{labels['docList.ot']}
+															<h:outputText value="#{stan.stanoviste}">
+																<f:convertDateTime pattern="dd.MM.yyyy" timeZone="#{docEdit.timeZone}"/>
+															</h:outputText>
+														 </span>
+														<span class="ui-chips-token-icon ui-icon ui-icon-close" onclick="removeProcedura([{name: 'procCode', value: #{proc.code}}, {name: 'stanIndex', value: #{stanIndex.index}}])" jsf:rendered="#{isView != 1}" />
+													</li>
+												</ui:repeat>
+											</ul>
+										</div>
+									</div>
+								</ui:repeat>
+								<p:remoteCommand name="removeProcedura" update="procedures" actionListener="#{docEdit.actionDeleteProcedure}" />
+							</div>
+						</div>
+					</div>
+				
+					<!-- Полета -->
+					<div class="p-grid ui-fluid margin-top">
+					
+						<!-- Получен от -->
+						<div class="p-col-12 p-sm-6 p-md-3">
+							<div class="form-label">#{labels['docEdit.poluchenOt']}</div>
+							<p:selectOneMenu value="#{docEdit.euroDoc.poluchenOt}" autoWidth="false" rendered="#{isView != 1}">
+								<f:selectItem value="#{null}" itemValue="#{null}"/>
+								<f:selectItems  value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_POLUCHEN_OT, now, docEdit.currentLang)}" 
+								    var="poluch" itemLabel="#{poluch.tekst}" itemValue="#{poluch.code}" />
+							</p:selectOneMenu>
+							<p:inputText value="#{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_POLUCHEN_OT, docEdit.euroDoc.poluchenOt, docEdit.currentLang, now)}" rendered="#{isView == 1}" readonly="true" />
+						</div>
+						
+						<!-- Автор -->
+						<div class="p-col-12 p-sm-6 p-md-3">
+							<div class="form-label">#{labels['docList.avtor']}</div>
+							<p:selectOneMenu value="#{docEdit.euroDoc.avtor}" autoWidth="false" rendered="#{isView != 1}">
+								<f:selectItem value="#{null}" itemValue="#{null}"/>
+								<f:selectItems  value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_AVTOR, now, docEdit.currentLang)}" 
+								    var="avtor" itemLabel="#{avtor.tekst}" itemValue="#{avtor.code}" />
+							</p:selectOneMenu>
+							<p:inputText value="#{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_AVTOR, docEdit.euroDoc.avtor, docEdit.currentLang, now)}" rendered="#{isView == 1}" readonly="true" />
+						</div>
+					
+						<!-- Вид досие -->
+						<div class="p-col-12 p-sm-6 p-md-3">
+							<div class="form-label">#{labels['docList.vidDosie']}</div>
+							<p:selectOneMenu value="#{docEdit.euroDoc.vidDosie}" autoWidth="false" rendered="#{isView != 1}">
+								<f:selectItem value="#{null}" itemValue="#{null}"/>
+								<f:selectItems  value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_DOSIE, now, docEdit.currentLang)}" 
+								    var="dosie" itemLabel="#{dosie.tekst}" itemValue="#{dosie.code}" />
+							</p:selectOneMenu>
+							<p:inputText value="#{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_DOSIE, docEdit.euroDoc.vidDosie, docEdit.currentLang, now)}" rendered="#{isView == 1}" readonly="true" />
+						</div>
+						
+						<!-- Служител -->
+						<div class="p-col-12 p-sm-6 p-md-3">
+							<div class="form-label">#{labels['docEdit.slujitel']}</div>
+							<p:selectOneMenu value="#{docEdit.euroDoc.sluj}" autoWidth="false" rendered="#{isView != 1}">
+								<f:selectItem value="#{null}" itemValue="#{null}"/>
+								<f:selectItems  value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_DIR_ES, now, docEdit.currentLang)}" 
+								    var="sluj" itemLabel="#{sluj.tekst}" itemValue="#{sluj.code}" />
+							</p:selectOneMenu>
+							<p:inputText value="#{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_AVTOR, docEdit.euroDoc.sluj, docEdit.currentLang, now)}" rendered="#{isView == 1}" readonly="true" />
+						</div>
+					
+						<!-- Заглавие - български -->
+						<div class="p-col-12">
+							<div class="form-label">#{labels['docList.zaglavieBg']}</div>
+							<p:inputTextarea rows="2" value="#{docEdit.euroDoc.zaglBg}" readonly="#{isView == 1}"/>
+						</div>
+						
+						<!-- Заглавие - английски -->
+						<div class="p-col-12">
+							<div class="form-label">#{labels['docList.zaglavieEn']}</div>
+							<p:inputTextarea rows="2" value="#{docEdit.euroDoc.zaglEn}" readonly="#{isView == 1}"/>
+						</div>
+					</div>
+
+					<!-- Файлове -->
+					<ibg:compFileUploadL id="uploadedFiles" listObj="#{docEdit.filesList}" 
+						listDelObj="#{docEdit.filesXList}" codeObj="#{EuroConstants.CODE_ZNACHENIE_JOURNAL_EURO_DOC}" 
+						saveFirst="false" autoSave="false"
+						hideDel="#{isView == 1}" view="#{isView == 1}" />
+
+					<!-- Тематични области -->
+					<div class="p-grid margin-top ui-fluid">
+						<div class="p-col-12 p-lg-6">
+							<div class="form-label">#{labels['docEdit.tematichnostNs']}</div>
+							<div class="selectModalA" jsf:rendered="#{isView != 1}">
+								<ibg:selectManyModalA id="temaNsInput" withBtnClear="true"
+									codeClassif="#{EuroConstants.CODE_SYSCLASS_TEMATIKA_NS}" 
+									dateClassif="#{now}" styleAutoComp=""
+									selectedCodes="#{docEdit.temaNsList}" selectedClassifs="#{docEdit.temaNsClassifs}"
+									compType="2" maxResults="50" />
+							</div>
+							<div class="ui-chips ui-widget" jsf:rendered="#{isView == 1 and docEdit.temaNsList.size() > 0}">
+								<ul class="ui-chips-container ui-corner-all ui-inputfield ui-state-default">
+									<ui:repeat value="#{docEdit.temaNsList}" var="tema" varStatus="index">
+										<li class="ui-chips-token ui-corner-all ui-state-active">
+											<span class="ui-chips-token-label" style="padding: 0 0.5em">#{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_TEMATIKA_NS, tema, docEdit.currentLang, now)}</span>
+										</li>
+									</ui:repeat>
+								</ul>
+							</div>
+						</div>
+						
+						<div class="p-col-12 p-lg-6">
+							<div class="form-label">#{labels['docEdit.tematichnostEk']}</div>
+							<div class="selectModalA" jsf:rendered="#{isView != 1}">
+								<ibg:selectManyModalA id="temaEkInput" withBtnClear="true"
+									codeClassif="#{EuroConstants.CODE_SYSCLASS_TEMATIKA_EK}" 
+									dateClassif="#{now}" styleAutoComp=""
+									selectedCodes="#{docEdit.temaEkList}" selectedClassifs="#{docEdit.temaEkClassifs}"
+									compType="2" maxResults="50" />
+							</div>
+							<div class="ui-chips ui-widget" jsf:rendered="#{isView == 1 and docEdit.temaEkList.size() > 0}">
+								<ul class="ui-chips-container ui-corner-all ui-inputfield ui-state-default">
+									<ui:repeat value="#{docEdit.temaEkList}" var="tema" varStatus="index">
+										<li class="ui-chips-token ui-corner-all ui-state-active">
+											<span class="ui-chips-token-label" style="padding: 0 0.5em">#{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_TEMATIKA_EK, tema, docEdit.currentLang, now)}</span>
+										</li>
+									</ui:repeat>
+								</ul>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Полета -->
+					<div class="p-grid ui-fluid margin-top">
+						<div class="p-col-12">
+							<div class="form-label">#{labels['docEdit.etapPriemaneSavet']}</div>
+							<p:inputTextarea value="#{docEdit.euroDoc.etapES}" rows="2" readonly="#{isView == 1}" />
+						</div>
+						<div class="p-col-12">
+							<div class="form-label">#{labels['docEdit.etapPriemaneParlament']}</div>
+							<p:inputTextarea value="#{docEdit.euroDoc.etapEP}" rows="2" readonly="#{isView == 1}"/>
+						</div>
+						<div class="p-col-12">
+							<div class="form-label">#{labels['docEdit.predstoiashtiSabitia']}</div>
+							<p:inputTextarea value="#{docEdit.euroDoc.predstoiasti}" rows="2" readonly="#{isView == 1}"/>
+						</div>
+						
+						<div class="p-col-12">
+							<div class="form-label">#{labels['docEdit.komentar']}</div>
+							<p:inputTextarea value="#{docEdit.euroDoc.comment}" rows="4" readonly="#{isView == 1}"/>
+						</div>
+					</div>
+				
+					<!-- URL - връзки -->
+					<div class="margin-top">
+						<div class="title-group">
+							<p:commandLink styleClass="extended-search-toggle expanded "
+								onclick="toggleSection(this, '#urlLinks')">
+								<h:outputText value="#{labels['docEdit.urlVrazki']}" />
+								<i class="fas fa-caret-right"></i>
+							</p:commandLink>
+							<p:commandButton title="#{labels['docEdit.dobaviane']}" onclick="$('#urlToggle').slideToggle()" icon="fas fa-plus" style="margin-left: 1em;" />
+						</div>
+						<div jsf:id="urlLinks">
+							<div jsf:id="urlWrapper" class="p-grid ui-fluid p-align-end">
+								<div id="urlToggle" class="p-col-12" style="display: none;">
+									<div class="p-grid p-align-end">
+										<div class="p-col-12 p-sm-8" jsf:rendered="#{isView != 1}">
+											<div class="form-label">#{labels['docEdit.opisanie']}</div>
+											<p:inputText id="inputUrlOpis" value="#{docEdit.tempEuroLink.opis}">
+												<p:ajax event="blur" partialSubmit="true" process="urlWrapper" listener="#{docEdit.actionAddUrl}" update="urlTable inputUrlOpis inputUrlLink" />
+											</p:inputText>
+										</div>
+										<div class="p-col-12 p-sm-4" jsf:rendered="#{isView != 1}">
+											<p:selectOneMenu autoWidth="false" onchange="onchangeUrlHelpSelect(this)">
+												<f:selectItem value="#{null}" itemValue="#{null}"/>
+												<f:selectItems  value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_POM_TEKST, now, docEdit.currentLang)}" 
+												    var="url" itemLabel="#{url.tekst}" itemValue="#{url.dopInfo != null ? url.dopInfo : ' '}" />
+											</p:selectOneMenu>
+										</div>
+										
+										<script type="text/javascript">
+											function onchangeUrlHelpSelect(obj) { 
+												// код от оригиналния екран
+									            let opis = document.getElementById('inputUrlOpis');
+									            opis.value = obj.options[obj.selectedIndex].text;
+									            
+									            let url = document.getElementById('inputUrlLink');
+									            url.value = obj.value + url.value;
+								            }
+										</script>
+										
+										<div class="p-col-12" jsf:rendered="#{isView != 1}">
+											<div class="form-label">#{labels['docEdit.url']}</div>
+											<p:inputText id="inputUrlLink" value="#{docEdit.tempEuroLink.url}">
+												<p:ajax event="blur" partialSubmit="true" process="urlWrapper" listener="#{docEdit.actionAddUrl}" update="urlTable inputUrlOpis inputUrlLink" />
+											</p:inputText>
+										</div>
+									</div>
+								</div>
+								
+								<div jsf:id="urlTable" class="p-col-12">
+									<p:dataTable value="#{docEdit.euroDoc.links}" var="url" rowIndexVar="index" rendered="#{docEdit.euroDoc.links != null and docEdit.euroDoc.links.size() > 0}"
+										rows="10" rowsPerPageTemplate="5,10,15" paginatorPosition="bottom" paginator="true" paginatorAlwaysVisible="false"
+										paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+										
+										<f:facet name="header">#{labels['docEdit.urlVrazkiDokumenti']}</f:facet>
+										
+										<p:column width="25" headerText="#{ui_labels['general.No-symbol']}" exportable="false">
+											<h:outputText value="#{index + 1}" />
+										</p:column>	
+										
+										<p:column>
+											<div>
+												<p:link value="#{url.url}" href="#{url.url}" target="_blank" />
+											</div>
+											<div>#{url.opis}</div>
+										</p:column>
+							
+										<p:column width="36" style="text-align: center;" rendered="#{isView != 1}">
+											<p:commandButton icon="fas fa-trash" actionListener="#{docEdit.actionDeleteUrl(index)}" update="urlTable"/>
+										</p:column>
+									</p:dataTable>
+								</div>
+							</div>
+						</div>
+					</div>
+				
+					<!-- Приемане на акта от европейските институции -->
+					<div class="margin-top">
+						<div class="title-group">
+							<p:commandLink styleClass="extended-search-toggle expanded "
+								onclick="toggleSection(this, '#acceptAct')">
+								<h:outputText value="Приемане на акта от европейските институции" />
+								<i class="fas fa-caret-right"></i>
+							</p:commandLink>
+						</div>
+						<div jsf:id="acceptAct">
+							<div class="p-grid ui-fluid">
+								<div class="p-col-12 p-sm-6 p-md-4">
+									<div class="form-label">#{labels['docEdit.nomerCelex']}</div>
+									<p:inputText value="#{docEdit.euroDoc.priemaneCelex}" readonly="#{isView == 1}"/>
+								</div>
+								<div class="p-col-12">
+									<div class="form-label">#{labels['docEdit.naimenovanie']}</div>
+									<p:inputTextarea value="#{docEdit.euroDoc.priemaneIme}" rows="3" readonly="#{isView == 1}"/>
+								</div>
+								<div class="p-col-8 p-sm-6 p-md-4">
+									<div class="form-label">#{labels['docEdit.oficialenVestnik']}</div>
+									<div class="ui-inputgroup inputgroup-bordered">
+										<p:inputText value="#{docEdit.euroDoc.priemaneBroi}" placeholder="#{labels['docEdit.broi']}" readonly="#{isView == 1}"/>
+										<p:datePicker showIcon="true" mask="true" placeholder="#{labels['docEdit.data']}"   pattern="dd.MM.yyyy" locale="bg"  rendered="#{isView ne 1}" value="#{docEdit.euroDoc.priemaneDate}"/>
+										<p:inputText rendered="#{isView eq 1}" value="#{docEdit.euroDoc.priemaneDate}" readonly="true">
+										   <f:convertDateTime  pattern="dd.MM.yyyy" timeZone="#{docEdit.timeZone}"/>
+										</p:inputText>   
+									</div>
+								</div>
+								<div class="p-col-12">
+									<div class="form-label">#{labels['docEdit.urlEurlex']}</div>
+									<p:inputText value="#{docEdit.euroDoc.priemaneUrl}" readonly="#{isView == 1}"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				
+					<!-- Връзки с други документи на ЕС -->
+					<div class="margin-top">
+						<div class="title-group">
+							<p:commandLink styleClass="extended-search-toggle expanded "
+								onclick="toggleSection(this, '#vrazki')">
+								<h:outputText value="#{labels['docEdit.vrazkiDrugiDok']}" />
+								<i class="fas fa-caret-right"></i>
+							</p:commandLink>
+							<p:commandButton title="Добавяне" icon="fas fa-plus" onclick="$('#vrazkiToggle').slideToggle();" style="margin-left: 1em;" rendered="#{isView != 1}" />
+						</div>
+						<div id="vrazki">
+							<div class="p-grid">
+								<div id="vrazkiToggle" class="p-col-12 p-sm-8 p-lg-6 p-xl-4" style="display: none;" jsf:rendered="#{isView != 1}">
+									<div class="form-label">#{labels['docList.signaturaDok']}</div>
+									<div style="display: flex; align-items: center;">
+										<p:selectBooleanCheckbox value="#{docEdit.signaturaVrazChecked}">
+											<p:ajax event="change" listener="#{docEdit.actionCheckVrazSignatura}" partialSubmit="true" process="@this" update="signaturaEu" />
+										</p:selectBooleanCheckbox>
+										
+										<div jsf:id="signaturaEu" class="ui-fluid" style="flex-grow: 1; margin-left: 1em;">
+											<div jsf:id="vrazPoleta" class="ui-inputgroup inputgroup-bordered" jsf:rendered="#{!docEdit.signaturaVrazChecked}">
+												<p:selectOneMenu var="i" value="#{docEdit.signaturaVrazSeria}">
+													<f:selectItem itemValue="#{null}" itemLabel="#{null}" />
+													<f:selectItems value="#{docEdit.signaturaOptions}" var="option" itemLabel="#{option.tekst}" itemValue="#{option}" />
+													<p:column>
+								                       #{i.tekst}
+							                      	</p:column>
+													<p:column>
+								                       #{i.dopInfo}
+								                    </p:column>
+								                     <p:ajax event="change" partialSubmit="true" process="@this" listener="#{docEdit.actionAddVraz}" update="vrazkiList vrazPoleta" />
+												</p:selectOneMenu> 
+												
+												<p:inputText value="#{docEdit.signaturaVrazGodina}" placeholder="#{labels['docList.godina']}" maxlength="4">
+													<p:keyFilter regEx="/[\d]/"/>
+													<p:ajax event="valueChange" partialSubmit="true" process="@this" listener="#{docEdit.actionAddVraz}" update="vrazkiList vrazPoleta" />
+												</p:inputText>
+												
+												<p:inputText value="#{docEdit.signaturaVrazNomer}" placeholder="#{labels['docList.nomer']}" >
+													<p:keyFilter regEx="/[\d]/"/>
+													<p:ajax event="valueChange" partialSubmit="true" process="@this" listener="#{docEdit.actionAddVraz}" update="vrazkiList vrazPoleta" />
+												</p:inputText>
+											</div>
+											<p:inputText id="inputSignaturaVraz" value="#{docEdit.signaturaVraz}" rendered="#{docEdit.signaturaVrazChecked}" >
+												<p:ajax event="valueChange" partialSubmit="true" process="@this" listener="#{docEdit.actionAddVraz}" update="vrazkiList vrazPoleta" />
+											</p:inputText>
+										</div>
+										
+									</div>
+								</div>
+								<div jsf:id="vrazkiList" class="p-col-12 ui-fluid">
+									<div class="ui-chips ui-widget" jsf:rendered="#{docEdit.euroDoc.vraz.size() > 0}">
+										<ul class="ui-chips-container ui-corner-all ui-inputfield ui-state-default">
+											<ui:repeat value="#{docEdit.euroDoc.vraz}" var="vraz" varStatus="index">
+												<li class="ui-chips-token ui-corner-all ui-state-active custom-chips #{isView == 1 ? 'view' : ''}">
+													<span class="ui-chips-token-label">#{vraz.signVraz}</span>
+													<p:link target="_blank" href="#{docEdit.actionViewVraz(index.index)}" style="color: #4c566a;">
+														<span class="ui-chips-token-icon bonus-icon fas fa-search" />
+													</p:link>
+													<span class="ui-chips-token-icon ui-icon ui-icon-close" onclick="removeVrazka([{name: 'index' , value: #{index.index}}])" jsf:rendered="#{isView != 1}"/>
+												</li>
+											</ui:repeat>
+										</ul>
+									</div>
+									<p:remoteCommand name="removeVrazka" action="#{docEdit.actionDeleteVraz}" update="vrazkiList"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				
+				</div>
+			</div>
+		
+		</div>
+	</h:form>
+    
+ </ui:composition>
+    

@@ -1,0 +1,125 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:c="http://java.sun.com/jstl/core"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:cc="http://java.sun.com/jsf/composite"
+	  xmlns:pe="http://primefaces.org/ui/extensions"
+	  xmlns:ibg="http://java.sun.com/jsf/composite/components" > 	  
+	  
+
+<cc:interface componentType="compActSecZ">
+   		 
+   <cc:attribute name="act" 		type="java.lang.Object"	 shortDescription="обект акт" default="#{null}"/>
+   <cc:attribute name="readonly"    type="java.lang.Boolean" shortDescription="Само за разглеждане" default="false" />
+   
+</cc:interface>
+
+<cc:implementation>
+
+ <f:event type="preRenderComponent" listener="#{cc.init()}" /> <!--  За да се инициализира компонентата-->
+			
+		<div class="timeline-row" jsf:rendered="#{cc.showMe}">
+			
+			
+			<div class="p-grid ui-fluid" >
+				<div class="p-col-12">
+				<p:selectBooleanCheckbox value="#{cc.act.sectionZYesNoBool}" itemLabel="#{labels['euroAct.secZYN']}" styleClass="form-label">
+					<p:ajax event="change" update="#{cc.clientId}:panelDataActs" listener="#{cc.actionShowPanel}" />
+				</p:selectBooleanCheckbox>
+				</div>
+			</div>
+			
+			<div jsf:id="panelDataActs" >
+			<div jsf:rendered="#{cc.showPanelDataActs}">
+			<div jsf:rendered="#{!cc.attrs.readonly}">
+				<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '##{cc.clientId}:dataActSec'); return false;" id="titleLink">
+					<h:outputText value="#{labels['euroAct.addAct']}" />
+					<i class="fas fa-caret-right"></i>
+				</p:commandLink>
+				
+				<p:commandButton id="bntNewAB2" styleClass="btn-new p-ml-2" update="#{cc.clientId}:dataActSec" action="#{cc.actionNewSecZ}"
+					icon="fas fa-plus" rendered="#{!cc.attrs.readonly}"
+					oncomplete="toggleSection(this, '##{cc.clientId}:dataActSec')" />
+			</div>
+			
+			<div jsf:id="dataActSec"   style="display: none;" jsf:rendered="#{!cc.attrs.readonly}">
+				<div jsf:id="dataActSecGrid" class="p-grid ui-fluid">
+					
+					
+					<div class="p-col-12">
+						<p:toolbar>
+							<f:facet name="left">
+								<p:commandButton icon="fas fa-save" action="#{cc.actionSaveSecZ}" value="#{ui_labels['general.save']}"
+																update="#{cc.clientId}:dataActSecGrid #{cc.clientId}:tblSecList" />
+							</f:facet>
+						</p:toolbar>
+						<div class="p-grid ui-fluid">
+						
+							<!-- Забележка-->
+							<div class="p-col-12">
+								<h:outputText value="#{labels['euroAct.naim']}" styleClass="form-label req" />
+								<p:inputTextarea value="#{cc.secZNew.nameBgAct}" rows="3" id="nameSecZ" />
+							</div>
+							
+							<!-- ДВ - брой и година-->
+							<div class="p-col-4">
+								<h:outputText value="#{labels['euroActSecZ.dvBrGod']}" styleClass="form-label req" />
+								<div class="ui-inputgroup inputgroup-bordered">
+									<p:inputNumber id="dvNum" value="#{cc.secZNew.dvBroi}" decimalPlaces="0" thousandSeparator="" placeholder="#{labels['general.broj']}"/> 
+									<p:inputNumber id="dvYear" value="#{cc.secZNew.dvGodina}" decimalPlaces="0" thousandSeparator="" maxValue="9999" placeholder="#{labels['general.godina']}"/>	
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<div class="p-col-12">
+						<hr/>
+					</div>
+				</div>
+			</div>
+		    <div jsf:id="tblSecList">
+			<p:dataTable  var="row" value="#{cc.secZList}" rows="5" rowIndexVar="idx" rendered="#{!empty cc.secZList}"
+				style="width: 100%" scrollable="true" scrollWidth="100%" emptyMessage="#{ui_labels['general.norows']}"
+				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} "
+				rowsPerPageTemplate="5,10,15,20,25" paginatorPosition="bottom" paginator="true" paginatorAlwaysVisible="true">
+		
+				<p:column width="25" exportable="false" headerText="#{ui_labels['general.No-symbol']}">
+					<h:outputText value="#{idx + 1}" />
+				</p:column>
+		
+				<p:column width="35" exportable="false"  rendered="#{!cc.attrs.readonly}">
+					<p:commandButton icon="fas fa-edit" action="#{cc.actionEditSecZ(row)}" title="#{ui_labels['general.edit']}" update="#{cc.clientId}:dataActSec"
+						oncomplete="toggleSection(this, '##{cc.clientId}:dataActSec')"/>
+				</p:column>
+		
+				<p:column width="*" headerText="#{labels['euroAct.naim']}">		            
+		            <h:outputText value="#{row.nameBgAct}" />		            
+				</p:column>
+				
+				<p:column width="50" headerText="#{labels['general.broj']}">		            
+		            <h:outputText value="#{row.dvBroi}" />		            
+				</p:column>
+				
+				<p:column width="50" headerText="#{labels['general.godina']}">		            
+		            <h:outputText value="#{row.dvGodina}" />		            
+				</p:column>
+								
+				<p:column width="35" exportable="false" rendered="#{!cc.attrs.readonly}">
+					<p:commandButton icon="fas fa-trash" action="#{cc.actionDeleteSecZ(row)}" onclick="if(!confirm('#{beanMessages['general.confirmDeleteMsg']}'))return false;"
+						title="#{ui_labels['general.delete']}" styleClass="ui-button-danger" update="#{cc.clientId}:tblSecList #{cc.clientId}:dataActSec" />
+				</p:column>
+			
+			</p:dataTable>
+			</div>
+			</div>
+			</div>
+			
+		</div>
+
+
+</cc:implementation>
+
+</ui:composition>

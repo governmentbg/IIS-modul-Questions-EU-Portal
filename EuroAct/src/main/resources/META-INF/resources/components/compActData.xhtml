@@ -1,0 +1,151 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:c="http://java.sun.com/jstl/core"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:cc="http://java.sun.com/jsf/composite"
+	  xmlns:pe="http://primefaces.org/ui/extensions"
+	  xmlns:ibg="http://java.sun.com/jsf/composite/components" > 	  
+	  
+
+<cc:interface componentType="compActData">
+   		 
+   <cc:attribute name="codeAct"	         	 type="java.lang.Integer" shortDescription="code на акт" deafult="null" />
+   <cc:attribute name="searchTxt"	         type="java.lang.String"  shortDescription="Предварително подаден текст за търсене по име на акт" deafult="null"/>
+   <cc:attribute name="dateClassif"   		 type="java.util.Date"    shortDescription="Дата, към която да се заредят класификации и за разкодиране. По подразбиране - днешна дата." />
+   <cc:attribute name="update" 		  		 type="java.lang.String"  shortDescription="Полета, които трябва да се обновят" />
+   <cc:attribute name="readonly"       		 type="java.lang.Boolean" shortDescription="Само за разглеждане" default="false" />
+   <cc:attribute name="onComplete"     		 type="java.lang.String"  shortDescription="Изпълнява функция при връщане на резултата - подава се името на функцията" />
+   
+   <cc:attribute name="modal"       		 type="java.lang.Boolean" shortDescription="Обработката е в модален диалог(true) или не(false)." default="true" />
+   <cc:attribute name="admin"       		 type="java.lang.Boolean" shortDescription="Администриране на всички данни - да(true); не(false)."  default="false" />
+   
+</cc:interface>
+
+<cc:implementation>
+
+ <f:event type="preRenderComponent" listener="#{cc.initAct()}" /> <!--  За да се инициализира компонентата-->
+			
+		<div class="card" jsf:id="dataAct" jsf:rendered="#{cc.showMe}">
+
+			<p:toolbar rendered="#{!cc.attrs.readonly}" >
+				
+				<f:facet name="left">
+					
+					<p:commandButton icon="fas fa-save"
+						value="#{ui_labels['general.save']}"
+						rendered="#{!cc.attrs.readonly}" id="btnSaveAct"
+						update="#{cc.attrs.update} #{cc.clientId}:dataAct"
+						partialSubmit="true" process="#{cc.attrs.update} #{cc.clientId}:dataAct @this"
+						actionListener="#{cc.actionSave}" title="#{labels['compActData.saveReturnTitle']}">
+					</p:commandButton>
+					
+					<span class="p-mx-2"  jsf:rendered="#{!cc.attrs.modal}">
+                         <span class="fas fa-ellipsis-v SoftGray" />
+                   </span>
+                   
+                   <p:commandButton id="btnNewAct" value="#{labels['euroActsList.newAct']}"
+								action="#{cc.clearAct(null)}" partialSubmit="true" styleClass="ui-button-success"
+								process="#{cc.attrs.update} #{cc.clientId}:dataAct @this" update="#{cc.attrs.update} #{cc.clientId}:dataAct"
+								icon="fas fa-file" rendered="#{!cc.attrs.modal}"/>
+								
+					<h:outputText value="#{cc.errMsg}" styleClass="form-label" style="color:red" id="errMsg" />
+					
+				</f:facet>
+				<f:facet name="right">
+					<p:commandButton icon="fas fa-times" value="#{ui_labels['general.delete']}"
+						rendered="#{!cc.attrs.readonly and cc.act.id ne null}"
+						id="btnDelAct" update="#{cc.attrs.update} #{cc.clientId}:dataAct"
+						partialSubmit="true" process="#{cc.attrs.update} #{cc.clientId}:dataAct @this"
+						styleClass="ui-button-danger"
+						actionListener="#{cc.actionDelete}" title="#{labels['compActData.deleteAct']}">
+						<p:confirm header="#{ui_labels['general.comfirmation']}" message="#{labels['compActData.sureDeleteAct']}" icon="ui-icon-alert" />
+					</p:commandButton>
+				</f:facet>
+			
+			</p:toolbar>
+			
+			<div class="p-col-12">
+				<p:commandLink class="extended-search-toggle expanded" onclick="toggleSection(this, '#mainData')">
+					<h:outputText value="#{labels['compActData.mainData']}"/>
+					<i class="fas fa-caret-right"></i>
+				</p:commandLink>
+			</div>
+			
+			 <div class="p-grid ui-fluid" jsf:id="mainData">
+			 
+			 	<h:panelGroup layout="block" class="p-grid p-col-12" id="panelAct" >
+			 
+				<!-- Вид на акта -->	
+				<div class="p-col-12 p-sm-12 p-md-5 p-lg-5">
+					<h:outputText value="#{labels['euroActsList.vid']}" styleClass="form-label req"/>
+					<p:remoteCommand name="cmdChangeVidAct" update="#{cc.clientId}:dataAct"
+						partialSubmit="true" process="#{cc.clientId}:dataAct @this"
+						actionListener="#{cc.actionChangeVidAct}" />		
+					<ibg:selectOneModalA id="vidAct" 
+						codeClassif="#{EuroConstants.CODE_SYSCLASS_VID_ACT}" 
+						selectedCode="#{cc.act.vidAct}" readonly="#{cc.attrs.readonly}" 
+						dateClassif="#{cc.currentDate}" filtered="false" 														
+						saveStateTree="true" header="#{labels['euroActsList.vid']}" 
+						withBtnClear="true" compType="2" styleAutoComp="" isSelectNode="true"
+						onComplete="cmdChangeVidAct()" onClear="cmdChangeVidAct()" />	
+				</div>
+
+				<!-- Номер на акта -->	
+				<div class="p-col-12 p-sm-12 p-md-3 p-lg-3">
+					<h:outputText value="#{labels['euroActsList.nomer']}" styleClass="form-label req" />
+					<p:inputText id="nomerAct" value="#{cc.act.rnFull}" readonly="#{cc.attrs.readonly}" >
+						<p:ajax event="change" update="#{cc.clientId}:dataAct" partialSubmit="true" process="@this" listener="#{cc.actionCheckForExistAct}"/>
+					</p:inputText>
+				</div>
+				
+				<!-- CELEX -->	
+				<div class="p-col-12 p-sm-12 p-md-2 p-lg-2">
+					<h:outputText value="#{labels['euroActsList.celex']}" styleClass="form-label" />
+					<p:inputText id="celex" value="#{cc.act.celex}" readonly="#{cc.attrs.readonly}" />
+				</div>
+				
+				</h:panelGroup>
+				
+				<!-- Наименование -->	
+				<div class="p-col-12 p-sm-12 p-md-12 p-lg-12" >									
+					<h:outputText value="#{labels['euroActsList.naim']}" styleClass="form-label"/>
+					<p:inputTextarea id="naimAct" value="#{cc.act.ime}" rows="3" readonly="#{cc.attrs.readonly}" style="width:99%"/>												
+				</div>
+				
+				<!-- URL-->
+				<div class="p-col-12 p-sm-12 p-md-12 p-lg-12" >									
+					<h:outputText value="#{labels['euroActEdit.actUrl']}" styleClass="form-label"/>
+					<p:inputText id="urlAct" value="#{cc.act.url}" readonly="#{cc.attrs.readonly}" style="width:99%"/>										
+				</div>
+				
+				<!-- Номер на проектоакт -->
+				<div class="p-col-4 p-sm-4 p-md-4 p-lg-4" jsf:rendered="#{!cc.showNoteSr}">
+					<h:outputText value="#{labels['euroActEdit.numPA']}" styleClass="form-label" />
+					<div class="ui-inputgroup inputgroup-bordered">
+						<p:selectOneMenu value="#{cc.act.comVid}" id="comVid" readonly="#{cc.attrs.readonly}" >
+							<f:selectItem value="#{null}" itemValue="#{null}" />
+							<f:selectItems value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_SIGNATURA_SERIA, now, 1)}"
+											var="itemSc" itemLabel="#{itemSc.tekst}" itemValue="#{itemSc.code}" />
+						</p:selectOneMenu>
+						<p:inputNumber id="comYear" value="#{cc.act.comYear}" decimalPlaces="0" thousandSeparator="" maxValue="9999" placeholder="#{labels['programEdit.godina']}" readonly="#{cc.attrs.readonly}" />						
+						<p:inputNumber id="comNumber" value="#{cc.act.comNumber}" decimalPlaces="0" thousandSeparator="" placeholder="#{labels['general.nomer']}" readonly="#{cc.attrs.readonly}" /> 
+					</div>
+				</div>
+				
+				<!-- Описание -->	
+				<div class="p-col-12 p-sm-12 p-md-12 p-lg-12" jsf:rendered="#{cc.showNoteSr}">									
+					<h:outputText value="#{labels['euroAct.noteSr']}" styleClass="form-label"/>
+					<p:textEditor widgetVar="noteSr" value="#{cc.act.noteSr}" height="500" style="margin-bottom:10px" secure="false"  readonly="#{cc.attrs.readonly}" />												
+				</div>
+				
+			</div>
+		
+		</div>
+
+
+</cc:implementation>
+
+</ui:composition>

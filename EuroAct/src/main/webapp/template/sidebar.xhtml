@@ -1,0 +1,108 @@
+<ui:composition
+		xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:pm="http://primefaces.org/mirage"
+		xmlns:o="http://omnifaces.org/ui">
+		
+	<p:importConstants type="com.ib.euroact.system.EuroConstants" />
+		
+    <div class="layout-sidebar">
+        <div class="sidebar-logo">
+
+            <a href="index.xhtml">
+            	<p:graphicImage id="logoSidebar" name="#{guestPreferences.darkMode ? 'images/logo-parlament-white.png' : 'images/logo-parlament.png'}" library="mirage-layout" />
+            </a>
+            <a href="#" class="sidebar-pin" title="Toggle Menu">
+                <i class="fas fa-thumbtack"></i>
+            </a>
+            <div>
+            	<a href="index.xhtml" class="app-name">#{labels['general.systemName']}</a>
+            </div>
+
+        </div>
+
+        <div class="layout-menu-container">
+            <div class="nano">
+                <div class="nano-content menu-scroll-content">
+                    <h:form id="menuform">	
+                    	<o:cache time="3600" key="docuMenuCache">
+                        <pm:menu>
+                            <p:menuitem id="index" value="#{labels['general.homе']}" icon="fas fa-fw fa-home" outcome="index.xhtml@clear@?faces-redirect=true"  ajax="false"/>
+                            	
+                            <p:submenu id="documents" label="#{labels['doc.title']}" 
+                            	rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34203)}" icon="fas fa-file-alt">
+                           		<p:menuitem id="documentsNew" icon="far fa-file"
+                           			rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34204)}"
+	                            	value="#{labels['docEdit.menuTitle']}" outcome="docNew.xhtml@clear@?faces-redirect=true" ajax="false"/>
+	                            	
+	                            <p:menuitem id="documentsEdit"  icon="fas fa-pencil-alt"
+	                            	rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34205)}"
+	                            	value="#{labels['docList.title']}" outcome="docList.xhtml@clear@?faces-redirect=true" ajax="false"/>
+	                            <ui:remove>	
+		                            <p:menuitem id="documentsWork" icon="fas fa-eye"
+		                            	rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34206)}"
+		                            	value="#{labels['docEdit.workDocNS']}" ajax="false"/>
+	                            </ui:remove>
+                            </p:submenu>
+
+                            <p:menuitem id="euroActs" 
+                            	rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 30347)}" icon="fas fa-fw fa-files-o"
+                            	value="#{labels['euroActsList.title']}" outcome="euroActsList.xhtml@clear@?faces-redirect=true"   ajax="false"/>
+                         
+                         	<p:menuitem id="dossierEdit" 
+                         			rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 30346)}" icon="fas fa-fw fa-edit"
+	                            	value="#{labels['dossier.title']}" outcome="dossierList.xhtml@clear@?faces-redirect=true"  ajax="false"/>
+	                       
+                            <p:menuitem id="programs" icon="fas fa-fw fa-list-alt"
+                            	rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34207)}"
+                            	value="#{labels['programsList.title']}" outcome="programsList.xhtml@clear@?faces-redirect=true" ajax="false" />
+                             
+                            <p:submenu id="drugi" label="#{labels['otherDocuments.menu']}"
+                            	 rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34208)}"  icon="fas fa-fw fa-folder">
+                            
+                            	<p:menuitem id="otchetMS" 
+                           		    rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34209)}" icon="fas fa-fw fa-edit"
+	                            	value="#{labels['otchetiMS.title']}" outcome="euroOtchetSearchList.xhtml@clear@?faces-redirect=true"  ajax="false"/>
+                            
+	                            <p:menuitem id="buletin" 
+	                                rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34210)}" icon="fas fa-fw fa-edit"
+	                            	value="#{labels['buletinEuro.title']}" outcome="euroBuletinSearch.xhtml@clear@?faces-redirect=true"  ajax="false"/>
+	                            
+	                             <p:menuitem id="dogovoriES" 
+	                                rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34211)}" icon="fas fa-fw fa-eye"
+	                            	value="#{labels['dogovoriES.title']}" url="https://eur-lex.europa.eu/legal-content/BG/TXT/?qid=1490951984391&amp;uri=CELEX:12016ME/TXT"  ajax="false" target="_blank"/>
+                            </p:submenu>
+                            
+                            <p:submenu id="spravki" label="#{labels['spravki.menu']}" 
+                            		rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34212)}" icon="fas fa-fw fa-folder">
+                         	 	<p:menuitem id="documentView" 
+                         	 		rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 30365)}" icon="fas fa-fw fa-eye"
+	                            	value="#{labels['doc.title']}" outcome="docListView.xhtml@clear@?faces-redirect=true"  ajax="false"/>
+                         	 	
+                         	 	<p:menuitem id="dossierview" 
+                         	 		rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34202)}" icon="fas fa-fw fa-eye"
+	                            	value="#{labels['dossier.title']}" outcome="dossierListView.xhtml@clear@?faces-redirect=true"  ajax="false"/>
+                           		
+                           		<p:menuitem id="otchetMSView" 
+                           		    rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34213)}" icon="fas fa-fw fa-eye"
+	                            	value="#{labels['otchetiMS.title']}" outcome="euroOtchetViewList.xhtml@clear@?faces-redirect=true"  ajax="false"/>
+	                            	
+	                            <p:menuitem id="buletinView" 
+	                                rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34214)}" icon="fas fa-fw fa-eye"
+	                            	value="#{labels['buletinEuro.title']}" outcome="euroBuletinViewList.xhtml@clear@?faces-redirect=true"  ajax="false"/>
+	                            	
+	                            <p:menuitem id="harmonizacia" 
+	                                rendered="#{request.userPrincipal.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, 34215)}" icon="fas fa-fw fa-eye"
+	                            	value="#{labels['euroHarm.title']}" outcome="euroHarmSearch.xhtml@clear@?faces-redirect=true"  ajax="false"/>
+	                            	
+                            </p:submenu>
+						</pm:menu>
+                    	</o:cache>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+    </div>
+</ui:composition>

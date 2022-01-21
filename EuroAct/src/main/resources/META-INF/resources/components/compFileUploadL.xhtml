@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:cc="http://java.sun.com/jsf/composite"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	 xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:ibg="http://java.sun.com/jsf/composite/ibg">
+
+
+<cc:interface componentType="compFileUploadL">
+	 <cc:attribute name="listObj" 		 type="java.util.List" shortDescription="Списък с файловете" required="true"/>
+	 <cc:attribute name="listDelObj" 	 type="java.util.List" shortDescription="Списък с изтритите файловете"/>
+	 <cc:attribute name="idObj" 		 type="java.lang.Integer" shortDescription="ID на обекта, към който се прикача файла" required="true" />
+	 <cc:attribute name="codeObj" 		 type="java.lang.Integer" shortDescription="Код на обекта, към който се прикача файла" required="true" />
+	 <cc:attribute name="view" 			 type="java.lang.Boolean" shortDescription="Дали е само за разглеждане на файлове" default="false" />
+	 <cc:attribute name="hideDel" 		 type="java.lang.Boolean" shortDescription="Дали да скрива бутона за изтриване; по подразбиране: false" default="false" />
+	 <cc:attribute name="saveFirst" 	 type="java.lang.Boolean" shortDescription="Дали да забрани бутона за upload, ако осн. обект не е записан; по подразбиране: true" default="true" />
+	 <cc:attribute name="autoSave"		 type="java.lang.Boolean" shortDescription="true - записва файловете автоматично, по подразбиране: false" default="false"/>
+	 <cc:attribute name="header"		 type="java.lang.Boolean" shortDescription="true - да се вижда ли антетката на тaблицата с файлове" default="false"/>
+	 <cc:attribute name="headerLabel"	 type="java.lang.String"  shortDescription="Наименованието на панела. По подразбиране: Файлове" default="#{ui_labels['general.files']}"/>
+     <cc:attribute name="btnLabel"	     type="java.lang.String"  shortDescription="Наименованието на бутона за добавяне на файл По подразбиране: Нов файл" default="#{ui_labels['files.new']}"/>
+     <cc:attribute name="showTitle"		 type="java.lang.Boolean" shortDescription="true - да има възможност за скриване на тайтъла на компонентата;" default="true"/>
+	 <cc:attribute name="onComplete"   	 type="java.lang.String"   shortDescription="Изпълнява функция при връщане на резултата - подава се името на функцията" />
+	 <cc:attribute name="showUserUpload" type="java.lang.Boolean"  shortDescription="Да показва ли подробности за потребителя, прикачил файла" default="false"/>
+	
+	 
+</cc:interface>
+
+<cc:implementation>
+
+	<style>
+		.list-container {
+			display: flex;
+    		flex-wrap: wrap;
+		}
+		
+		.file-list {
+			background-color: #ffffff;
+			border: 1px solid #dddddd;
+			width: 220px;
+			height: 55px;
+			margin: 5px;
+			display: flex;
+			flex-wrap: nowrap;
+			align-items: stretch;
+			border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+			box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+		}
+		
+		.file-list .file-details {
+			width: 200px;
+			padding: 4px 2px 4px 4px;
+    		font-size: 0.9em;
+    		position: relative;
+    		height: 100%;
+    		overflow: hidden;
+		}
+		
+		.file-list .file-details .file-icon {
+			position: absolute;
+			top: 4px;
+			right: 2px;
+			font-size: 2rem;
+			opacity: 0.15;			
+		}
+		
+		.file-list .filename {
+			word-break: break-all;			
+		}
+		
+		.file-list .file-options {
+			width: 20px;
+			background-color: #f1f1f1;
+			transition: background-color 0.05 ease-in;
+		}
+		
+		.file-list:hover .file-options {
+			background-color: #e6e6e6;
+		}
+		
+		.file-list .file-options a {
+			display: block;
+			width: 100%;
+			height: 100%;
+			line-height: 48px;
+			text-align: center;
+    		border-left: 1px solid #ddd;
+		}
+	</style>
+
+<ui:remove><!-- 	<f:event type="preRenderComponent" listener="#{cc.initRenderComp()}" />  --></ui:remove> 
+	<p:tooltip escape="false" hideEvent="mouseout click"/>
+	<h:panelGroup layout="block">
+	
+	<div class="p-grid">
+		<div class="p-col-12" jsf:rendered="#{cc.attrs.showTitle or !cc.attrs.view}">
+			<p:commandLink class="extended-search-toggle expanded" onclick="toggleSection(this, '##{cc.clientId}:files-tbl')" rendered="#{cc.attrs.showTitle}">
+				<h:outputText value="#{cc.attrs.headerLabel}" />
+				<i class="fas fa-caret-right"></i>
+			</p:commandLink>
+		
+			<p:fileUpload  id="uplF" rendered="#{!cc.attrs.view}" 
+				listener="#{cc.listenerPrime}"   
+				disabled="#{cc.attrs.saveFirst}" 
+				mode="advanced" 
+				dragDropSupport="false"
+			    multiple="false"  sequential="true" 
+				update="#{cc.clientId}:files-tbl" 
+				auto="true" 
+				label="#{cc.attrs.btnLabel}"/>
+			
+		</div>
+		
+		<h:panelGroup id="files-tbl" layout="block" class="p-col-12 p-nogutter">
+
+			<h:panelGroup id="file-list" >
+				<div class="list-container ">
+					<p:repeat varStatus="rkv" value="#{cc.lstObjTmp}" var="file" id="fileList2" >
+						<h:panelGroup styleClass="file-list" layout="block" id="lis">
+						
+						
+							<p:commandLink ajax="false" action="#{cc.download(file)}" id="btnF" >
+								<div class="file-details">									
+									<i class="fas fa-file file-icon"></i> 
+									<span class="filename" style="#{file.id ==null ?'font-style: italic; color:green':''}">#{file.filename}</span>									
+								</div>
+							</p:commandLink>
+								
+						
+							<div class="file-options">
+								<p:commandLink id="file-options">
+									<i class="fas fa-caret-down"></i>
+								</p:commandLink>
+							</div>
+						
+							
+							<p:menu id="options-menu" for="file-options" trigger="file-options" styleClass="user-options" overlay="true" my="right top" at="right bottom">
+						        <p:menuitem value="#{ui_labels['general.download']}" ajax="false" action="#{cc.download(file)}" icon="fas fa-download" />
+							
+									 	
+								<p:menuitem value="#{ui_labels['general.delete']}" icon="fas fa-times"
+									rendered="#{!(cc.attrs.view or cc.attrs.hideDel)}" 
+									update="#{cc.clientId}:file-list" partialSubmit="true"
+									process="#{cc.clientId}:file-list @this" actionListener="#{cc.actionDelete(file)}">
+									<p:confirm header="#{ui_labels['general.comfirmation']}" escape="false" message="#{ui_labels['files.confirmDelete']}" icon="ui-icon-alert"/>
+								</p:menuitem>
+					   		 </p:menu>
+					
+					   </h:panelGroup>
+					</p:repeat>
+				</div>
+				
+			</h:panelGroup>
+		</h:panelGroup>
+		
+	</div>
+						  
+	
+	</h:panelGroup>
+	
+	
+</cc:implementation>
+ </html>

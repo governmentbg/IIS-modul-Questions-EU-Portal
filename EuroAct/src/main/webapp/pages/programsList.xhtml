@@ -1,0 +1,99 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:jsf="http://xmlns.jcp.org/jsf"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:p="http://primefaces.org/ui"
+		template="/template/template.xhtml">
+
+	 <ui:define name="metadata">
+		<f:metadata>
+			<!-- <f:viewAction action="#{userData.checkPageAccess(null)}" onPostback="false" /> -->
+			<f:importConstants type="com.ib.euroact.system.EuroConstants" /> 
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="title">#{navTexts['/pages/programsList.xhtml']}</ui:define>
+
+	<ui:define name="viewname">
+		<li>#{navTexts['/pages/programsList.xhtml']}</li>
+	</ui:define>
+
+	<ui:define name="content"> 
+
+		<h:form id="formProgramsList">
+			
+			<h:panelGroup id="resultTable" layout="block" styleClass="margin-top">
+
+				<h:panelGroup layout="block" styleClass="card">
+
+					<div class="table-toolbar">
+
+						<p:commandButton icon="fas fa-file" action="#{programsList.actionGotoNew}" ajax="false" value="#{labels['programsList.newProg']}" styleClass="ui-button-success" />
+
+						<span class="p-mx-2" jsf:rendered="#{programsList.programsList.rowCount > 0}"> 
+							<span class="fas fa-ellipsis-v" />
+						</span>
+
+						<h:outputText value="#{ui_labels['general.reportResult']} #{programsList.programsList.rowCount}" styleClass="form-label" rendered="#{programsList.programsList.rowCount > 0}"/>
+
+					</div>
+
+					<p:dataTable id="tblProgramsList" var="row" value="#{programsList.programsList}" lazy="true"
+						rowIndexVar="idx" emptyMessage="#{ui_labels['general.norows']}" rows="15" sortMode="single" reflow="true"
+						paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						rowsPerPageTemplate="5,10,15,20,25" paginatorPosition="bottom" paginatorAlwaysVisible="true" paginator="true">
+
+						<f:facet name="{Exporters}">
+
+							<div style="float: left">
+
+								<h:commandLink id="excel">
+									<h:graphicImage library="images" name="excel2.png" />
+									<p:dataExporter type="xls" target="tblProgramsList" fileName="programsListXls" postProcessor="#{programsList.postProcessXLS}"/>
+								</h:commandLink>
+
+								<h:commandLink id="pdf">
+									<h:graphicImage library="images" name="pdf.png" />
+									<p:dataExporter type="pdf" target="tblProgramsList" fileName="programsListPdf"	
+									   preProcessor="#{programsList.preProcessPDF}"   encoding="windows-1251" options="#{programsList.pdfOptions()}" />
+								</h:commandLink>
+
+								<h:commandLink id="csv">
+									<h:graphicImage library="images" name="csv.png" />
+									<p:dataExporter type="csv" target="tblProgramsList" fileName="programsListCsv" encoding="CP1251" />
+								</h:commandLink>
+
+							</div>
+
+						</f:facet>
+
+						<p:column width="15" exportable="false" headerText="#{ui_labels['general.No-symbol']}">
+							<h:outputText value="#{idx + 1}" />
+						</p:column>
+
+						<p:column width="30" exportable="false">
+							<p:commandButton icon="fas fa-edit" action="#{programsList.actionGoto(row[0])}" ajax="false" title="#{ui_labels['general.edit']}" styleClass="btn-new" />							
+						</p:column>
+						
+						<p:column width="30" exportable="false">
+							<p:commandButton icon="fas fa-eye" action="#{programsList.actionGotoView(row[0])}" ajax="false" title="#{ui_labels['general.view']}"/>
+						</p:column>
+
+						<p:column width="*" sortBy="#{row.A02}" headerText="#{labels['programsList.naim']}">
+							<h:outputText value="#{row[1]}" />
+						</p:column>
+
+					</p:dataTable>
+
+				</h:panelGroup>
+
+			</h:panelGroup>
+
+		</h:form>
+
+ </ui:define> 
+ 
+ </ui:composition>
+
+

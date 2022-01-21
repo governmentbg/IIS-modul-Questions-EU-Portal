@@ -1,0 +1,184 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:ibg="http://java.sun.com/jsf/composite/components"
+	template="/template/template.xhtml">
+
+	<ui:define name="title">#{navTexts['/pages/programEdit.xhtml']}</ui:define>
+
+	<ui:define name="viewname">
+		<li><p:commandLink title="#{ui_labels['general.back']}" action="#{navigation.goBack()}" rendered="#{navigation.navPath.size()>1}">
+				<i class="fas fa-caret-left" />
+			</p:commandLink></li>
+		<li>#{navTexts['/pages/programEdit.xhtml']}</li>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<f:metadata>
+			<!--  <f:viewAction action="#{userData.checkPageAccess()}" onPostback="false" /> 	-->
+			<f:importConstants type="com.ib.euroact.system.EuroConstants" />
+		</f:metadata>
+
+		<h:form id="formProgram">
+
+			<div class="#{guestPreferences.containerPosition}">
+
+				<div class="card">
+
+					<p:toolbar id="tlbButton">
+
+						<f:facet name="left">
+							<p:commandButton icon="fas fa-save" value="#{ui_labels['general.save']}" id="btnSave"
+								update="formProgram" partialSubmit="true" process="formProgram @this" actionListener="#{programEdit.actionSave}">
+							</p:commandButton>
+							
+							<span class="p-mx-2" jsf:rendered="#{programEdit.program.id ne null}"> 
+								<span class="fas fa-ellipsis-v SoftGray" />
+							</span>
+							 
+							<p:commandButton icon="fas fa-eye" action="#{programEdit.actionGotoView}" value="#{ui_labels['general.view']}" ajax="false" rendered="#{programEdit.program.id ne null}"/>
+							
+						</f:facet>
+
+						<f:facet name="right">							
+							<p:commandButton icon="fas fa-times" id="btnDelete" value="#{ui_labels['general.delete']}" update="formProgram"
+								partialSubmit="true" process="formProgram  @this" rendered="#{programEdit.program.id ne null}"
+								styleClass="ui-button-danger" actionListener="#{programEdit.actionDelete}">
+								<p:confirm header="#{ui_labels['general.comfirmation']}" message="#{beanMessages['programEdit.sureDeleteProg']}" icon="ui-icon-alert" />
+							</p:commandButton>							
+						</f:facet>
+
+					</p:toolbar>
+
+					<div class="p-col-12">
+						<p:commandLink class="extended-search-toggle expanded" onclick="toggleSection(this, '#formProgram:program')">
+							<h:outputText value="#{labels['programEdit.program']}" />
+							<i class="fas fa-caret-right"></i>
+						</p:commandLink>
+					</div>
+
+					<div jsf:id="program" class="p-grid p-col-12 p-nogutter">
+
+						<div class="card">
+
+							<!-- Година -->
+							<div class="p-grid p-col-12 p-sm-12 p-md-2 p-lg-2 ui-fluid">
+								<h:outputText value="#{labels['programEdit.godina']}" styleClass="form-label req" />					 				
+								<p:inputNumber id="godina" value="#{programEdit.program.godina}" decimalPlaces="0" thousandSeparator="" maxValue="9999"> 
+									<p:ajax event="change" update="formProgram:program" partialSubmit="true" process="@this" listener="#{programEdit.actionCheckForExistProgram}" />
+								</p:inputNumber>
+							</div>
+
+							<!-- Header -->
+							<div class="p-grid p-col-12 p-sm-12 p-md-12 p-lg-12" >
+								<h:outputText value="#{labels['programEdit.header']}" styleClass="form-label" />
+								<p:textEditor widgetVar="header" value="#{programEdit.program.header}"  height="300" secure="false" style="width: 100%; "/>
+							</div>
+							
+							<!-- Footer -->
+							<div class="p-grid p-col-12 p-sm-12 p-md-12 p-lg-12" >
+								<h:outputText value="#{labels['programEdit.footer']}" styleClass="form-label" />
+								<p:textEditor widgetVar="footer" value="#{programEdit.program.footer}" height="300" secure="false" style="width: 100%; "/>
+							</div>
+
+						</div>
+
+					</div>
+					
+					<h:panelGroup id="panelPoints" layout="block" rendered="#{programEdit.program.id ne null}">
+
+						<div class="p-col-12">
+							<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#dataForPoint')" id="pointProg" action="#{programEdit.actionNewPoint}"  update="formProgram:pointTxt">
+								<h:outputText value="#{labels['programEdit.addPoint']}" />
+								<i class="fas fa-caret-right"></i>
+							</p:commandLink>
+
+							<p:commandButton id="bntNew" styleClass="btn-new p-ml-2" update="formProgram:panelPoints formProgram:tblPoints"
+								action="#{programEdit.actionNewPointPlus}" icon="fas fa-plus" 
+								oncomplete="if(!$('#formProgram\\:pointProg').hasClass('expanded')) {$('#formProgram\\:pointProg').trigger('click');}" />
+						</div>
+
+						<div id="dataForPoint" class="card" style="display: none;">
+
+							<p:toolbar>
+
+								<f:facet name="left">
+									<p:commandButton icon="fas fa-save" action="#{programEdit.actionSavePoint}"
+										update="panelPoints tblPoints" value="#{ui_labels['general.save']}" />
+								</f:facet>
+
+							</p:toolbar>
+
+							<br />
+							
+							<!-- Пореден номер -->
+							<div class="p-grid p-col-12 p-sm-2 p-md-2 p-lg-2 ui-fluid" jsf:id="pored">
+								<h:outputText value="#{labels['programEdit.poredNum']}" styleClass="form-label req" />
+								<p:inputNumber value="#{programEdit.point.pored}" id="porNum" minValue="1" decimalPlaces="0" thousandSeparator="" >
+									<p:ajax event="change" update="formProgram:pored" partialSubmit="true" process="@this" listener="#{programEdit.actionCheckForPoredenNum}" />
+								</p:inputNumber>
+							</div>
+						
+							<!-- Текст-->
+							<div class="p-grid p-col-12 p-sm-12 p-md-12 p-lg-12 ui-fluid" jsf:id="pointTxt">
+								<h:outputText value="#{labels['programEdit.text']}" styleClass="form-label req" />
+								<p:textEditor id="text" widgetVar="textWV" value="#{programEdit.point.tekst}"  height="150" secure="false" style="width: 100%; "/>
+							</div>
+
+						</div>
+
+					</h:panelGroup>
+
+					<div class="card" jsf:rendered="#{programEdit.program.id ne null}">
+					
+						<div class="p-grid p-col-12 p-sm-12 p-md-12 p-lg-12 ui-fluid">
+
+							<p:dataTable id="tblPoints" var="row" value="#{programEdit.pointsList}" rows="5" rowIndexVar="idx"
+								style="width: 99%" scrollable="true" scrollWidth="99%" emptyMessage="#{ui_labels['general.norows']}"
+								paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} "
+								rowsPerPageTemplate="5,10,15,20,25" paginatorPosition="bottom" paginator="true" paginatorAlwaysVisible="true">
+
+								<p:column width="15" exportable="false" headerText="#{ui_labels['general.No-symbol']}">
+									<h:outputText value="#{idx + 1}" />
+								</p:column>
+
+								<p:column width="30" exportable="false">
+									<p:commandButton icon="fas fa-edit" action="#{programEdit.actionEditPoint(row.id)}"
+										title="#{ui_labels['general.edit']}" update="formProgram:panelPoints"
+										oncomplete="if(!$('#formProgram\\:pointProg').hasClass('expanded')) {$('#formProgram\\:pointProg').trigger('click');}" />
+								</p:column>
+								
+								<p:column width="80" sortBy="#{row.pored}" headerText="#{labels['programEdit.poredNum']}">
+									<h:outputText value="#{row.pored}" />
+								</p:column>
+
+								<p:column width="*" sortBy="#{row.tekst}" headerText="#{labels['programEdit.text']}">
+									<h:outputText value="#{row.tekst}" escape="false"/>
+								</p:column>
+								
+								<p:column width="30" exportable="false">
+									<p:commandButton icon="fas fa-trash" action="#{programEdit.actionDeletePoint(row)}"
+										onclick="if(!confirm('#{beanMessages['general.confirmDeleteMsg']}'))return false;"
+										title="#{ui_labels['general.delete']}" styleClass="ui-button-danger" update="formProgram:tblPoints formProgram:panelPoints" />
+								</p:column>
+									
+							</p:dataTable>
+
+						</div>
+
+					</div>
+
+				</div>
+
+			</div>
+
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

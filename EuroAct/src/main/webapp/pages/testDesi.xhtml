@@ -1,0 +1,322 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:ibg="http://java.sun.com/jsf/composite/components"
+	template="/template/template.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:importConstants type="com.ib.euroact.system.EuroConstants" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="title">Тестова страница за компонентите за акта</ui:define>
+
+	<ui:define name="viewname">
+		<li>Тестова страница за компонентите за акта</li>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="formTest">
+
+			<div class="p-grid  ui-fluid">
+
+				<div class="p-col-12">
+
+					<!-- Избор на акт -->
+					<div jsf:id="selectAct" class="p-col-12 p-sm-6 p-md-10">
+						
+						<h:outputText value="Избор на акт" styleClass="form-label" />
+						<div class="select-modal-wrapper">
+
+							<p:remoteCommand name="cmdSelAct" process="@this"
+								update="formTest:selectAct formTest:actName"
+								actionListener="#{testDesi.actionSelectAct}" />
+
+							<ibg:selectOneModalA showRadioBtn="true" 
+								saveStateTree="false"
+								filtered="false"
+								codeClassif="#{EuroConstants.CODE_SYSCLASS_EURO_ACT}"
+								dateClassif="#{now}" styleAutoComp="width:97%;"
+								withBtnClear="true" selectedCode="#{testDesi.codeActSrch}"
+								selectedText="#{testDesi.actName}"
+								itemtipAtPosition="right center" compType="3"
+								onComplete="cmdSelAct();" />
+
+							<p:commandButton icon="fas fa-list-ul"
+								rendered="#{testDesi.codeAct eq null}" 
+								partialSubmit="true"
+								process="@this" update="dpActSearch"
+								styleClass="select-modal-button"
+								style="margin-right: 35px;  width: 34px;"
+								oncomplete="PF('dialogAct').show();" 
+								title="Търсене на акт" />
+
+							<p:commandButton id="btnActData" icon="fas fa-edit"
+								rendered="#{testDesi.codeAct ne null}" 
+								partialSubmit="true"
+								process="@this" update="dpActEdit"
+								styleClass="select-modal-button"
+								oncomplete="PF('dialogActData').show();" 
+								title="Редакция на акт" />
+
+							<p:commandButton id="btnActNew" icon="fas fa-plus"
+								rendered="#{testDesi.codeAct eq null}" 
+								partialSubmit="true" 
+								process="@this" update="dpActEdit"
+								styleClass="select-modal-button" style="width: 34px;"
+								oncomplete="PF('dialogActData').show();"
+								title="Нов акт" />
+
+						</div>
+					</div>
+					
+					<div class="p-col-12 p-sm-6 p-md-10">
+						<div class="ui-inputgroup">
+							<p:inputTextarea id="actName" value="#{testDesi.actName}" rows="5" readonly="true" />
+							<p:commandButton action="#{testDesi.actionClearAct}"
+								id="clearSelAct" styleClass="ui-button-danger"
+								icon="fas fa-times" title="Изтрива избрания акт"
+								update="formTest:actName formTest:selectAct" />
+
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+
+			<div class="p-grid  ui-fluid">
+
+				<div class="p-col-12">
+
+					<!-- Избор на акт1 -->
+					<div jsf:id="selectAct1" class="p-col-12 p-sm-6 p-md-10">
+						
+						<h:outputText value="Избор на акт 1" styleClass="form-label" />
+						<div class="select-modal-wrapper">
+
+							<p:remoteCommand name="cmdSelAct1" process="@this"
+								update="formTest:selectAct1 formTest:actName1"
+								actionListener="#{testDesi.actionSelectAct1}" />
+
+							<ibg:selectOneModalA showRadioBtn="true" 
+								saveStateTree="false"
+								filtered="false"
+								codeClassif="#{EuroConstants.CODE_SYSCLASS_EURO_ACT}"
+								dateClassif="#{now}" styleAutoComp="width:97%;"
+								withBtnClear="true" selectedCode="#{testDesi.codeActSrch1}"
+								selectedText="#{testDesi.actName1}"
+								itemtipAtPosition="right center" compType="3"
+								onComplete="cmdSelAct1();" />
+
+							<p:commandButton icon="fas fa-list-ul"
+								rendered="#{testDesi.codeAct1 eq null}" 
+								partialSubmit="true"
+								process="@this" update="dpActSearch1"
+								styleClass="select-modal-button"
+								style="margin-right: 35px;  width: 34px;"
+								oncomplete="PF('dialogAct1').show();" 
+								title="Търсене на акт" />
+
+							<p:commandButton id="btnActData1" icon="fas fa-edit"
+								rendered="#{testDesi.codeAct1 ne null}" 
+								partialSubmit="true"
+								process="@this" update="dpActEdit1"
+								styleClass="select-modal-button"
+								oncomplete="PF('dialogActData1').show();"
+								title="Редакция на акт" />
+
+							<p:commandButton id="btnActNew1" icon="fas fa-plus"
+								rendered="#{testDesi.codeAct1 eq null}" 
+								partialSubmit="true" 
+								process="@this" update="dpActEdit1"
+								styleClass="select-modal-button" style="width: 34px;"
+								oncomplete="PF('dialogActData1').show();" 
+								title="Нов акт" />
+
+						</div>
+					</div>
+					
+					<div class="p-col-12 p-sm-6 p-md-10">
+						<div class="ui-inputgroup">
+							<p:inputTextarea id="actName1" value="#{testDesi.actName1}" rows="5" readonly="true" />
+							<p:commandButton action="#{testDesi.actionClearAct1}"
+								id="clearSelAct1" styleClass="ui-button-danger"
+								icon="fas fa-times" title="Изтрива избрания акт"
+								update="formTest:actName1 formTest:selectAct1" />
+
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+
+			<!-- Корекция на данни на акт -->
+			<div jsf:id="editAct" class="p-col-12 p-sm-6 p-md-10">
+				
+				<h:outputText value="Редакция на акт и нов акт" styleClass="form-label" />
+				
+				<div class="select-modal-wrapper">
+					<h:panelGroup id="panelEditAct">
+						<ibg:selectOneModalA showRadioBtn="true" 
+							saveStateTree="false"
+							filtered="false"
+							codeClassif="#{EuroConstants.CODE_SYSCLASS_EURO_ACT}"
+							dateClassif="#{now}" styleAutoComp="width:97%;"
+							withBtnClear="true" selectedCode="#{testDesi.codeActEdit}"
+							selectedText="#{testDesi.txtActEdit}"
+							itemtipAtPosition="right center" compType="3" />
+					</h:panelGroup>
+
+					<p:commandButton id="btnActDataEdit" icon="fas fa-edit"
+						partialSubmit="true" process="@this" update="dpActEditOne"
+						styleClass="select-modal-button"
+						style="margin-right: 35px;  width: 34px;"
+						oncomplete="PF('dialogActDataOne').show();"
+						title="Редакция на акт" />
+
+					<p:commandButton id="btnActNewEdit" icon="fas fa-plus"
+						partialSubmit="true" process="@this" update="dpActEditOne"
+						styleClass="select-modal-button" style="width: 34px;"
+						oncomplete="PF('dialogActDataOne').show();" title="Нов акт" />
+
+				</div>
+
+			</div>
+
+			<!-- МОДАЛНИ ЗА ТЪРСЕНЕ, РЕДАКЦИЯ И ДОБАВЯНЕ НА АКТ -->
+
+			<!-- модален прозорец с компонент за търсене на акт -->
+			<h:panelGroup id="dpActSearch">
+				
+				<p:dialog id="dialogAct" appendTo="@form" widgetVar="dialogAct"
+					closeOnEscape="true" header="Търсене на акт" fitViewport="true"
+					responsive="true" resizable="true" positionType="fixed"
+					position="top" modal="true" dynamic="true">
+					
+					<div class="container #{guestPreferences.containerPosition}">
+
+						<ibg:compActSearch id="searchActCompId"
+							codeAct="#{testDesi.codeActSrch}" searchTxt="#{testDesi.actName}"
+							dateClassif="#{now}" modal="true"
+							onComplete="PF('dialogAct').hide(); cmdAddAct();" />
+
+						<p:remoteCommand name="cmdAddAct" process="@this"
+							update="formTest:selectAct formTest:actName"
+							actionListener="#{testDesi.actionSelectAct}" />
+
+					</div>
+				
+				</p:dialog>
+			
+			</h:panelGroup>
+
+			<!-- модален прозорец с компонент за редактиране на данни на акт	-->
+			<h:panelGroup id="dpActEdit">
+				
+				<p:dialog id="dialogActData" appendTo="@form" closeOnEscape="true"
+					header="Редакция на акт" fitViewport="true" resizable="true"
+					responsive="true" position="top" widgetVar="dialogActData"
+					dynamic="true" modal="true">
+					
+					<div class="container #{guestPreferences.containerPosition}">
+
+						<ibg:compActData id="editActCompId" codeAct="#{testDesi.codeAct}"
+							searchTxt="#{testDesi.actName}" dateClassif="#{now}" modal="true"
+							onComplete="PF('dialogActData').hide(); cmdEdiAct();" />
+
+						<p:remoteCommand name="cmdEdiAct" process="@this"
+							update="formTest:selectAct formTest:actName" 
+							actionListener="#{testDesi.actionSelectAct}"/>
+					</div>
+
+				</p:dialog>
+			
+			</h:panelGroup>
+
+			<!-- модален прозорец с компонент за търсене на акт1 -->
+			<h:panelGroup id="dpActSearch1">
+				
+				<p:dialog id="dialogAct1" appendTo="@form" widgetVar="dialogAct1"
+					closeOnEscape="true" header="Търсене на акт" fitViewport="true"
+					responsive="true" resizable="true" positionType="fixed"
+					position="top" modal="true" dynamic="true">
+					
+					<div class="container #{guestPreferences.containerPosition}">
+
+						<ibg:compActSearch id="searchActCompId1"
+							codeAct="#{testDesi.codeActSrch1}"
+							searchTxt="#{testDesi.actName1}" dateClassif="#{now}"
+							modal="true" onComplete="PF('dialogAct1').hide(); cmdAddAct1();" />
+
+						<p:remoteCommand name="cmdAddAct1" process="@this"
+							update="formTest:selectAct1 formTest:actName1"
+							actionListener="#{testDesi.actionSelectAct1}" />
+
+					</div>
+				
+				</p:dialog>
+			
+			</h:panelGroup>
+
+			<!-- модален прозорец с компонент за редактиране на данни на акт1 -->
+			<h:panelGroup id="dpActEdit1">
+				
+				<p:dialog id="dialogActData1" appendTo="@form" closeOnEscape="true"
+					header="Редакция на акт" fitViewport="true" resizable="true"
+					responsive="true" position="top" widgetVar="dialogActData1"
+					dynamic="true" modal="true">
+					
+					<div class="container #{guestPreferences.containerPosition}">
+
+						<ibg:compActData id="editActCompId1"
+							codeAct="#{testDesi.codeAct1}" searchTxt="#{testDesi.actName1}"
+							dateClassif="#{now}" modal="true"
+							onComplete="PF('dialogActData1').hide(); cmdEdiAct1();" />
+
+						<p:remoteCommand name="cmdEdiAct1" process="@this"
+							update="formTest:selectAct1 formTest:actName1"
+							actionListener="#{testDesi.actionSelectAct1}"  />
+					</div>
+
+				</p:dialog>
+			
+			</h:panelGroup>
+
+			<!-- модален прозорец с компонент за редактиране на данни на акт One-->
+			<h:panelGroup id="dpActEditOne">
+				
+				<p:dialog id="dialogActDataOne" appendTo="@form"
+					closeOnEscape="true" header="Редакция на акт / добавяне на нов акт"
+					fitViewport="true" resizable="true" responsive="true"
+					position="top" widgetVar="dialogActDataOne" dynamic="true"
+					modal="true">
+					
+					<div class="container #{guestPreferences.containerPosition}">
+
+						<ibg:compActData id="editActCompIdOne"
+							codeAct="#{testDesi.codeActEdit}"
+							searchTxt="#{testDesi.txtActEdit}" dateClassif="#{now}"
+							modal="true"
+							onComplete="PF('dialogActDataOne').hide(); cmdEdiActOne();" />
+
+						<p:remoteCommand name="cmdEdiActOne" process="@this"
+							update="formTest:panelEditAct" />
+					</div>
+
+				</p:dialog>
+			
+			</h:panelGroup>
+
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

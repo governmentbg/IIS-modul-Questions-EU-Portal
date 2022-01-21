@@ -1,0 +1,281 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:ibg="http://java.sun.com/jsf/composite/components"
+	template="/template/template.xhtml">
+
+	<ui:define name="title">#{navTexts['/pages/euroActEdit.xhtml']}</ui:define>
+
+	<ui:define name="viewname">
+		<li><p:commandLink title="#{ui_labels['general.back']}" action="#{navigation.goBack()}" rendered="#{navigation.navPath.size()>1}">
+				<i class="fas fa-caret-left" />
+			</p:commandLink></li>
+		<li>#{navTexts['/pages/euroActEdit.xhtml']}</li>
+	</ui:define>
+	
+	<ui:define name="head">
+		<style>
+			.ui-accordion .ui-accordion-content { overflow: visible; }			
+		</style>		
+	</ui:define>
+	
+	<ui:define name="content">
+		
+		<f:metadata>
+			<!--  <f:viewAction action="#{userData.checkPageAccess()}" onPostback="false" /> 	-->
+			<f:importConstants type="com.ib.euroact.system.EuroConstants" />
+		</f:metadata>
+
+		<h:form id="formEuroAct">
+
+			<div class="#{guestPreferences.containerPosition}">
+				
+				<p:toolbar id="tlbButton">
+
+					<f:facet name="left">
+						<p:commandButton icon="fas fa-save" value="#{ui_labels['general.save']}" id="btnSave"
+							update="formEuroAct" partialSubmit="true" process="formEuroAct @this" actionListener="#{euroActEdit.actionSave}">
+						</p:commandButton>
+					</f:facet>
+
+					<f:facet name="right">						
+						<p:commandButton icon="fas fa-trash" id="btnDelete" value="#{ui_labels['general.delete']}" update="formEuroAct"
+							partialSubmit="true" process="formEuroAct  @this" rendered="#{euroActEdit.act.id ne null and userData.hasAccess(EuroConstants.CODE_SYSCLASS_MENU, EuroConstants.CODE_ZNACHENIE_MENU_DEF_PRAVO_DELETE)}"
+							styleClass="ui-button-danger" actionListener="#{euroActEdit.actionDelete}">
+							<p:confirm header="#{ui_labels['general.comfirmation']}" message="#{beanMessages['euroActEdit.sureDeleteAct']}" icon="ui-icon-alert" />
+						</p:commandButton>						
+					</f:facet>
+
+				</p:toolbar>
+				<div class="card"  jsf:id="euroAct">
+
+					<div class="p-grid ui-fluid" jsf:id="dataAct">
+
+							<!-- Вид на акта -->
+							<div class="p-col-12 p-sm-12 p-md-5 p-lg-5">									
+								<h:outputText value="#{labels['euroActsList.vid']}" styleClass="form-label req" />
+								
+								<p:remoteCommand name="cmdChangeVidAct" update="formEuroAct:euroAct formEuroAct:accordion formEuroAct:tlbButton"
+									partialSubmit="true" process="formEuroAct:euroAct formEuroAct:accordion formEuroAct:tlbButton @this"
+									actionListener="#{euroActEdit.actionChangeVidAct}" />
+								
+								<ibg:selectOneModalA id="vidAct"
+									codeClassif="#{EuroConstants.CODE_SYSCLASS_VID_ACT}"
+									selectedCode="#{euroActEdit.act.vidAct}"
+									dateClassif="#{euroActEdit.decodeDate}" filtered="false"
+									saveStateTree="true" header="#{labels['euroActsList.vid']}"
+									withBtnClear="true" compType="2" styleAutoComp=""
+									isSelectNode="false" onComplete="cmdChangeVidAct()"
+									onClear="cmdChangeVidAct()" />
+							</div>
+
+							<!-- Пълен номер на акта -->
+							<div class="p-col-12 p-sm-12 p-md-3 p-lg-3">
+								<h:outputText value="#{labels['euroActsList.nomer']}" styleClass="form-label req" />
+								<p:inputText id="rnFull" value="#{euroActEdit.act.rnFull}">
+									<p:ajax event="change" update="formEuroAct:euroAct" partialSubmit="true" process="@this" listener="#{euroActEdit.actionCheckForExistAct}" />
+								</p:inputText>
+							</div>
+							
+							<!-- Номер на акта -->
+							<div class="p-col-12 p-sm-12 p-md-2 p-lg-2" jsf:rendered="#{euroActEdit.viewDataForNumAndYear}">
+								<h:outputText value="#{labels['euroActsList.nomer']}" styleClass="form-label req" />
+								<p:inputText id="rn" value="#{euroActEdit.act.rn}">
+									<p:ajax event="change" update="formEuroAct:euroAct" partialSubmit="true" process="@this" listener="#{euroActEdit.actionCheckForExistActByRnAndYear}" />
+								</p:inputText>									
+							</div>
+							
+							<!-- Година на акта -->
+							<div class="p-col-12 p-sm-12 p-md-2 p-lg-2" jsf:rendered="#{euroActEdit.viewDataForNumAndYear}">
+								<h:outputText value="#{labels['euroActsList.year']}" styleClass="form-label req" />
+								<p:inputText id="godina" value="#{euroActEdit.act.godina}">
+									<p:ajax event="change" update="formEuroAct:euroAct" partialSubmit="true" process="@this" listener="#{euroActEdit.actionCheckForExistActByRnAndYear}" />
+								</p:inputText>									
+							</div>
+
+							<!-- Наименование -->
+							<div class="p-col-12 p-sm-12 p-md-12 p-lg-12">
+								<h:outputText value="#{labels['euroActsList.naim']}" styleClass="form-label" />
+								<p:inputTextarea id="naimAct" value="#{euroActEdit.act.ime}" rows="3" />
+							</div>
+
+							<!-- URL-->
+							<div class="p-col-12 p-sm-12 p-md-9 p-lg-9 ">
+								<h:outputText value="#{labels['euroActEdit.actUrl']}" styleClass="form-label" />
+								<div class="ui-inputgroup">
+									<p:inputText id="urlAct1" value="#{euroActEdit.act.url}">
+										<p:ajax event="change" update="formEuroAct:dataAct" listener="#{euroActEdit.actionChangeUrl}"/>
+									</p:inputText>
+									<p:linkButton id="btnUrl" href="#{euroActEdit.act.url}" title="#{labels['euroActEdit.actUrl']}" target="_blank"
+										icon="fas fa-link" rendered="#{euroActEdit.viewBtnUrl}" styleClass="inputgroup-button" />
+								</div>
+							</div>
+							
+							<!-- CELEX -->
+							<div class="p-col-12 p-sm-12 p-md-3 p-lg-3">
+								<h:outputText value="#{labels['euroActsList.celex']}" styleClass="form-label" />
+								<p:inputText id="celex" value="#{euroActEdit.act.celex}" />
+							</div>
+							
+							<!-- Номер на проектоакт -->
+							<div class="p-col-4 p-sm-4 p-md-4 p-lg-4" jsf:rendered="#{!euroActEdit.hideAccordion}">
+								<h:outputText value="#{labels['euroActEdit.numPA']}" styleClass="form-label" />
+								<div class="ui-inputgroup inputgroup-bordered">
+									<p:selectOneMenu value="#{euroActEdit.act.comVid}" id="comVid">
+										<f:selectItem value="#{null}" itemValue="#{null}" />
+										<f:selectItems value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_SIGNATURA_SERIA, now, euroActEdit.currentLang)}"
+														var="itemSc" itemLabel="#{itemSc.tekst}" itemValue="#{itemSc.code}" />
+									</p:selectOneMenu>
+									<p:inputNumber id="comYear" value="#{euroActEdit.act.comYear}" decimalPlaces="0" thousandSeparator="" maxValue="9999" placeholder="#{labels['programEdit.godina']}"/>						
+									<p:inputNumber id="comNumber" value="#{euroActEdit.act.comNumber}" decimalPlaces="0" thousandSeparator="" placeholder="#{labels['general.nomer']}"/> 
+								</div>
+							</div>
+
+							<!-- Описание -->
+							<div class="p-col-12 p-sm-12 p-md-12 p-lg-12" jsf:rendered="#{euroActEdit.hideAccordion}">
+								<h:outputText value="#{labels['euroAct.noteSr']}" styleClass="form-label" />
+								<p:textEditor widgetVar="noteSr" value="#{euroActEdit.act.noteSr}" height="600" style="margin-bottom:10px" secure="false" />
+							</div>
+
+						</div>
+
+						<p:outputPanel id="accordion" rendered="#{euroActEdit.act.id ne null and !euroActEdit.hideAccordion}">
+
+							<br />
+
+							<p:accordionPanel activeIndex="-1" dynamic="true" id="panelAccord" >
+
+								<p:tab title="#{labels['euroAct.secAB2']}" titleStyle="font-weight: bold" id="tabSecAB2">
+								
+									<div  class="timeline">											
+										<div jsf:id="dataForSecAB2">
+											<ibg:compActConn compAct="#{euroActEdit.act}" typeConn="1"/>
+							        	</div>
+					        		</div>
+									
+								</p:tab>
+
+								<p:tab title="#{labels['euroAct.secAB3']}" titleStyle="font-weight: bold" id="tabSecAB3">
+								
+									<div  class="timeline">											
+										<div jsf:id="dataForSecAB3">
+											<ibg:compActConn compAct="#{euroActEdit.act}" typeConn="2"/>
+							        	</div>
+					        		</div>
+
+								</p:tab>
+
+								<p:tab title="#{labels['euroAct.secAB4i']}" titleStyle="font-weight: bold" id="tabSecAB4i">
+								
+									<div  class="timeline">											
+										<div jsf:id="dataForSecAB4i">
+											<ibg:compActConn compAct="#{euroActEdit.act}" typeConn="3"/>
+							        	</div>
+					        		</div>
+
+								</p:tab>
+
+								<p:tab title="#{labels['euroAct.secAB4d']}" titleStyle="font-weight: bold" id="tabSecAB4d">
+								
+									<div  class="timeline">											
+										<div jsf:id="dataForSecAB4d">
+											<ibg:compActConn compAct="#{euroActEdit.act}" typeConn="4"/>
+							        	</div>
+					        		</div>
+					        		
+								</p:tab>
+
+								<p:tab title="#{labels['euroAct.secG']}" titleStyle="font-weight: bold" id="tabSecG">
+								
+									<div jsf:id="dataForSecG">
+										<ibg:compActConn compAct="#{euroActEdit.act}" typeConn="5"/>
+						        	</div>
+
+								</p:tab>
+
+								<p:tab title="#{labels['euroAct.secD']}" titleStyle="font-weight: bold" id="tabSecD">
+
+									<h:panelGroup id="panelSecD" layout="block">
+
+										<div class="p-col-12 p-sm-12 p-md-12 p-lg-12 ui-fluid" align="left">
+											<p:selectBooleanCheckbox value="#{euroActEdit.secDYesNo}" itemLabel="#{labels['euroAct.secDYN']}" styleClass="form-label">
+												<p:ajax event="change" update="formEuroAct:panelAccord:secDYes" listener="#{euroActEdit.actionClickDYesNo}" />
+											</p:selectBooleanCheckbox>
+										</div>
+
+										<h:panelGroup id="secDYes">
+
+											<h:panelGroup rendered="#{euroActEdit.secDYesNo}">
+
+												<div id="dataForSecD" class="card">
+
+													<p:toolbar>
+
+														<f:facet name="left">
+															<p:commandButton icon="fas fa-save" action="#{euroActEdit.actionSaveConn}"
+																update="formEuroAct:panelAccord:panelSecD" value="#{ui_labels['general.save']}" />
+														</f:facet>
+
+														<f:facet name="right">
+															<ui:remove>
+																<p:commandButton icon="fas fa-times" action="#{euroActEdit.actionDeleteConn}"
+																	styleClass="ui-button-danger" update="formEuroAct:panelAccord:panelSecD" value="#{ui_labels['general.delete']}"
+																	onclick="if(!confirm('#{beanMessages['general.confirmDeleteMsg']}'))return false;" />
+															</ui:remove>
+														</f:facet>
+
+													</p:toolbar>
+
+													<br />
+
+													<div class="p-grid ui-fluid">
+
+														<div class="p-grid p-col-12 p-sm-12 p-md-12 p-lg-12 ui-fluid" jsf:id="secDTxt">
+															<p:inputTextarea value="#{euroActEdit.act.sectionDText}" rows="7" rendered="#{euroActEdit.secDYesNo}" />
+														</div>
+
+													</div>
+
+												</div>
+
+											</h:panelGroup>
+
+										</h:panelGroup>
+
+									</h:panelGroup>
+
+								</p:tab>
+
+								<p:tab title="#{labels['euroAct.secE']}" titleStyle="font-weight: bold" id="tabSecE" style="overflow:none">
+								
+									<div jsf:id="dataForSecE">									
+										<ibg:compActSecE act="#{euroActEdit.act}" />
+						        	</div>
+						        	
+								</p:tab>
+
+								<p:tab title="#{labels['euroAct.secZ']}" titleStyle="font-weight: bold" id="tabSecZ">
+								
+									<div jsf:id="dataForSecZ">
+										<ibg:compActSecZ  act="#{euroActEdit.act}"/>
+						        	</div>
+									
+								</p:tab>
+
+							</p:accordionPanel>
+
+						</p:outputPanel>
+
+				</div>
+
+		  </div>
+					
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

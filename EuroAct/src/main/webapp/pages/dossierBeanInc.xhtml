@@ -1,0 +1,714 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:f="http://java.sun.com/jsf/core"
+		xmlns:jsf="http://xmlns.jcp.org/jsf"
+		xmlns:h="http://java.sun.com/jsf/html"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:pe="http://primefaces.org/ui/extensions"
+		xmlns:ibg="http://java.sun.com/jsf/composite/components">
+
+		<h:form id="formDossier">
+
+			<div class="#{guestPreferences.containerPosition}">
+				
+				<p:toolbar id="tblPanel1" rendered="#{isView !=1}">
+					
+					<f:facet name="left">
+						
+						<p:commandButton icon="fas fa-save" value="#{ui_labels['general.save']}"
+							id="btnSave" update="formDossier" partialSubmit="true" process="formDossier" 
+							actionListener="#{dossierBean.actionSave()}">
+						</p:commandButton> 
+						
+						 <span class="fas fa-ellipsis-v SoftGray p-mx-2" />
+						
+						
+						<ui:remove>
+							<!-- 
+							<p:selectBooleanButton id="prCh" value="#{dossierBean.onsiteBollean}"
+								disabled="#{dossierBean.dossier.id==null}"
+								onLabel="#{labels['general.onSiteOn']}"
+								offLabel="#{labels['general.onSite']}"
+								onIcon="fas fa-check-square" offIcon="fas fa-square">
+								<p:ajax event="change"  partialSubmit="true" update="formDossier" process="formDossier" listener="#{dossierBean.publishOnSite}" />
+							</p:selectBooleanButton>
+							 -->
+						</ui:remove>
+						
+						<p:selectBooleanCheckbox value="#{dossierBean.onsiteBollean}" itemLabel="#{labels['general.onSiteOn']}" id="prCh1" disabled="#{dossierBean.dossier.id==null or !dossierBean.hasAccessPublishOnSite}"/>
+						
+					</f:facet>
+
+					<f:facet name="right">
+						
+						<p:commandButton icon="fas fa-trash" id="btnDelete" value="#{ui_labels['general.delete']}" 
+				           	update="formDossier" partialSubmit="true"  process=" @this"
+				           	rendered="#{dossierBean.dossier.id ne null}" styleClass="ui-button-danger"																			
+							actionListener="#{dossierBean.actionDelete}">
+							<p:confirm header="#{ui_labels['general.comfirmation']}" message="#{beanMessages['euroActEdit.sureDeleteDossier']}" icon="ui-icon-alert" />
+						</p:commandButton>
+
+					</f:facet>
+				
+				</p:toolbar>
+				
+				
+				<div class="card">
+				
+					<div class="p-grid ui-fluid">
+                    	<div class="p-col-12">
+                    		<h:outputText value="#{labels['dossier.name']}" styleClass="form-label req"/>
+                    		<p:inputTextarea rows="2"  value="#{dossierBean.dossier.name}" id="dossierName"  readonly="#{isView eq 1}"/>
+                    	</div>
+                    	<div  class="p-col-12">
+                    		<h:outputText value="#{labels['general.law']}" styleClass="form-label req"/>
+                    		
+                    		
+                    		<p:autoComplete id="lawSearch" value="#{dossierBean.zakonNameSc}" completeMethod="#{dossierBean.actionComplete}" readonly="#{isView eq 1}"
+	                                    	var="item"  minQueryLength="3" converter="sysClassifItemConverterEU" emptyMessage="няма намерени резултати" forceSelection="false"
+	                                    	itemLabel="#{item.tekst}" itemValue="#{item}" queryEvent="keyup" >
+	                                    	
+					           
+						            
+						      	<p:ajax event="itemSelect" listener="#{dossierBean.onItemSelectLaw}"
+									partialSubmit="true" process="@this"  update="@this"/>
+								<p:ajax event="itemUnselect" listener="#{dossierBean.onItemUnselectLow}"
+									partialSubmit="true" process="@this" update="@this" />     
+						           
+					        </p:autoComplete>
+                    		
+                    	</div>
+                    	<div class="p-col-12 p-lg-6">
+                    		<h:outputText value="#{labels['general.lawHarm']}" styleClass="form-label req"/> (  <p:outputLabel value="#{labels['general.oldLaws']}" for="oldLawHarm"/> 
+                    		<p:selectBooleanCheckbox  value="#{dossierBean.oldLawHarm}" id="oldLawHarm" style="font-size:10px"> 
+                    			<p:ajax event="change" update="panelLawHarm dvBrV dvGodV" partialSubmit="true" process="@this oldLawHarm" listener="#{dossierBean.clearHarmLaw}"/>
+                    		</p:selectBooleanCheckbox> )
+                    		
+                    		<div class="ui-inputgroup" jsf:id="panelLawHarm" >
+	                    		<p:inputText  value="#{dossierBean.dossier.zakonNameV}"   readonly="#{isView eq 1 or !dossierBean.oldLawHarm}" /> 
+	                    		<p:commandButton   icon="fas fa-search"  rendered="#{!dossierBean.oldLawHarm}" partialSubmit="true"
+	                    			onclick="PF('searchLawHarm').show();"/>
+	                    	</div>
+	                    	
+	                    	<ui:remove> 
+	                    		<!-- 
+	                    		<p:autoComplete id="lawHarmSearch" value="#{dossierBean.zakonNameVSc}" completeMethod="#{dossierBean.actionComplete}"  readonly="#{isView eq 1}"
+		                                    	var="item"  minQueryLength="3" converter="sysClassifItemConverterEU" emptyMessage="няма намерени резултати" forceSelection="false"
+		                                    	itemLabel="#{item.tekst}" itemValue="#{item}" queryEvent="keyup" >
+		                                    	
+						            <p:ajax event="itemSelect" listener="#{dossierBean.onItemSelectLawHarm}"
+										partialSubmit="true" process="@this"  update="@this dvBrV dvGodV"/>
+									<p:ajax event="itemUnselect" listener="#{dossierBean.onItemUnselectLowHarm}"
+										partialSubmit="true" process="@this" update="@this  dvBrV dvGodV" />     
+							           
+						        </p:autoComplete>
+						         -->
+					        </ui:remove>
+					        
+                    	</div>
+                    	<div  class="p-col-4 p-lg-2">
+                    		<h:outputText value="#{labels['general.broj']}" styleClass="form-label req"/>
+                    		<p:inputText  value="#{dossierBean.dossier.zakonDvBrV}" id="dvBrV"  readonly="#{isView eq 1}"/>
+                    	</div>
+                    	<div  class="p-col-4 p-lg-2">
+                    		<h:outputText value="#{labels['general.godina']}" styleClass="form-label req"/>
+                    		<p:inputText  value="#{dossierBean.dossier.zakonDvGodV}" id="dvGodV"  readonly="#{isView eq 1}"/>
+                    	</div>
+                    	<div  class="p-col-4 p-lg-2">
+                    		<h:outputText value="#{labels['general.paragraf']}" styleClass="form-label"/>
+                    		<p:inputText  value="#{dossierBean.dossier.noteV}"  readonly="#{isView eq 1}"/>
+                    	</div>
+                    </div>
+                    <div class="p-grid ui-fluid" jsf:id="dataAct">	
+                    	<div class="p-col-12 p-lg-6">
+                    		<h:outputText value="#{labels['general.typeAct']}" styleClass="form-label req"/>
+                    		<ui:remove>
+	                    		<!-- 
+	                    		<ibg:selectOneModalA id="-vidAct-" 
+									codeClassif="#{EuroConstants.CODE_SYSCLASS_VID_ACT}" 
+									selectedCode="#{dossierBean.act.vidAct}" 
+									dateClassif="#{dossierBean.decodeDate}" filtered="false" 														
+									saveStateTree="true" header="#{labels['euroActsList.vid']}" 
+									withBtnClear="true" compType="2" styleAutoComp="" isSelectNode="true"
+									onComplete="cmdChangeVidAct()" 
+									readonly="#{dossierBean.act.id!=null and isView eq 1}"/>
+								
+								<p:remoteCommand name="cmdChangeVidAct" update="#{dossierBean.dossier.id!=null?'formDossier:panelTabs':''} formDossier:dataAct" partialSubmit="true" process=" @this vidAct"
+								actionListener="#{dossierBean.actionChangeVidAct}" />
+								 -->
+							</ui:remove>
+							
+							<p:selectOneMenu value="#{dossierBean.act.vidAct}"  id="vidAct">
+								<f:selectItem itemLabel="" itemValue="" />
+           						<f:selectItems value="#{dossierBean.vidAct}" />
+           						<p:ajax event="change" listener="#{dossierBean.actionChangeVidAct}" update="#{dossierBean.dossier.id!=null?'formDossier:panelTabs':''} formDossier:dataAct" partialSubmit="true" process=" @this vidAct"/>
+							</p:selectOneMenu>	
+							
+                    	</div>
+                    	<div  class="p-col-4 p-lg-2 ui-g-nopad">
+                    		<h:outputText value="#{labels['general.nomer']}" styleClass="form-label req"/>
+                    		<div class="ui-inputgroup">
+                    			<p:inputText  value="#{dossierBean.act.rnFull}" id="nomerAct" readonly="#{dossierBean.act.id!=null}">
+	                    			<p:ajax event="change" update="#{dossierBean.dossier.id!=null?'formDossier:panelTabs':''} formDossier:dataAct" 
+	                    			partialSubmit="true" process="@this" listener="#{dossierBean.actionCheckForExistAct}"/>
+	                    		</p:inputText>
+	                    		<p:commandButton icon="fas fa-times" disabled="#{dossierBean.act.id==null}"  rendered="#{isView!=1}"
+									id="bntRemAct" styleClass="ui-button-danger"
+									update="formDossier:panelTabs formDossier:dataAct" partialSubmit="true"
+									process="@this" actionListener="#{dossierBean.actionRemoveAct}"  title="#{LABELS['general.changeAct']}" />
+							</div>	
+                    	</div>
+                    	<div  class="p-col-4 p-lg-2">
+                    		<h:outputText value="#{labels['euroActsList.nomer']}" styleClass="form-label req" rendered="#{dossierBean.showNumYearAct}"/>
+                    		<p:inputText  value="#{dossierBean.act.rn}" id="nomAct"  readonly="#{isView eq 1}" rendered="#{dossierBean.showNumYearAct}">
+                    			<p:ajax event="change" update="#{dossierBean.dossier.id!=null?'formDossier:panelTabs':''} formDossier:dataAct" 
+	                    			partialSubmit="true" process="@this" listener="#{dossierBean.actionCheckForExistActByNumYear}"/>
+                    		</p:inputText>
+                    		
+                    		
+                    	</div>
+                    	<div  class="p-col-4 p-lg-2">
+                    		<h:outputText value="#{labels['euroActsList.year']}" styleClass="form-label req" rendered="#{dossierBean.showNumYearAct}"/>
+                    		<p:inputText  value="#{dossierBean.act.godina}" id="godAct"  readonly="#{isView eq 1}" rendered="#{dossierBean.showNumYearAct}">
+                    			<p:ajax event="change" update="#{dossierBean.dossier.id!=null?'formDossier:panelTabs':''} formDossier:dataAct" 
+	                    			partialSubmit="true" process="@this" listener="#{dossierBean.actionCheckForExistActByNumYear}"/>
+                    		</p:inputText>
+                    	</div>
+                    	
+                    </div>
+					
+					<div class="p-grid ui-fluid" jsf:id="tematika">	
+                    	<div class="p-col-12 p-lg-6">
+                    		<h:outputText value="#{labels['general.tematika']}" styleClass="form-label"/>
+                    		
+                    		<ibg:selectOneModalA id="temaDossier" 
+									codeClassif="#{EuroConstants.CODE_SYSCLASS_TEMA_DOSSIER}" 
+									selectedCode="#{dossierBean.dossier.tema}" 
+									dateClassif="#{dossierBean.decodeDate}"  														
+									saveStateTree="true" header="#{labels['general.tematika']}" 
+									withBtnClear="true" compType="2" styleAutoComp="" isSelectNode="true"/>
+                    	</div>
+                    </div>
+					
+					<br/>
+					<div jsf:id="panelTabs">
+					<p:tabView scrollable="true" id="tabSections" rendered="#{dossierBean.dossier.id!=null and dossierBean.act.id!=null}">
+						
+						<p:tab title="#{labels['dossier.section']} A" id="sectionAprim" rendered="#{!dossierBean.direktiva}">
+				        	
+				        	
+				        	<div jsf:rendered="#{dossierBean.direktiva}">
+					        	<h:outputText value="#{labels['dossier.sectionB1']}" styleClass="form-label" rendered="#{empty dossierBean.dossier.linksReg}"/>
+					        	<h:outputText value="#{labels['dossier.sectionB11']}" styleClass="form-label" rendered="#{!empty dossierBean.dossier.linksReg}"/>
+					        	
+					        	<p:dataTable var="regVar" value="#{dossierBean.dossier.linksReg}"  rowIndexVar="idx" 
+									style="width: 100%" emptyMessage="#{ui_labels['general.norows']}"
+									 rendered="#{!empty dossierBean.dossier.linksReg}" >
+							
+									<p:column width="25"  headerText="#{ui_labels['general.No-symbol']}">
+										<h:outputText value="#{idx + 1}" />
+									</p:column>
+									<p:column width="35" exportable="false">
+										<p:button  icon="fas fa-eye" href="dossierBeanView.xhtml" target="_blank"  title="#{ui_labels['general.view']}"  >
+											<f:param name="faces-redirect" value="true"/>
+											<f:param name="idObj" value="#{regVar.id}"/>
+										</p:button>
+						  			</p:column>
+									<p:column width="*"  headerText="#{labels['euroAct.naim']}">
+										<h:outputText value="#{regVar.nameAct}" />
+									</p:column>
+               					</p:dataTable>
+               				</div>
+               				
+               				<div  jsf:rendered="#{!dossierBean.direktiva}">
+	               				<h:outputText value="#{labels['dossier.sectionB2']}" styleClass="form-label" rendered="#{empty dossierBean.dossier.linksDir}"/>
+					        	<h:outputText value="#{labels['dossier.sectionB21']}" styleClass="form-label" rendered="#{!empty dossierBean.dossier.linksDir}"/>
+	               				
+	               				<p:dataTable var="dirVar" value="#{dossierBean.dossier.linksDir}"  rowIndexVar="idx" 
+									style="width: 100%" emptyMessage="#{ui_labels['general.norows']}"
+									 rendered="#{!empty dossierBean.dossier.linksDir}" >
+							
+									<p:column width="25"  headerText="#{ui_labels['general.No-symbol']}">
+										<h:outputText value="#{idx + 1}" />
+									</p:column>
+									<p:column width="35" exportable="false">
+										<p:button  icon="fas fa-eye" href="dossierBeanView.xhtml" target="_blank"  title="#{ui_labels['general.view']}"  >
+											<f:param name="faces-redirect" value="true"/>
+											<f:param name="idObj" value="#{dirVar.id}"/>
+										</p:button>
+									</p:column>
+									<p:column width="*"  headerText="#{labels['euroAct.naim']}">
+										<h:outputText value="#{dirVar.nameAct}" />
+									</p:column>
+               					</p:dataTable>
+				        	</div>
+				        </p:tab>
+						
+				        <p:tab title="#{labels['dossier.section']} #{(dossierBean.direktiva?'A':'Б')}">
+				        	
+							
+							<div class="layout-dashboard"> 
+								<div  class="timeline">
+									<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#formDossier:tabSections:dataSecА1'); return false;" >
+										<h:outputText value="#{labels['dossier.sectionA1']}" />
+										<i class="fas fa-caret-right"></i>
+									</p:commandLink>
+									<div jsf:id="dataSecА1" class="timeline-row">
+						        		<div class="p-grid ui-fluid">	
+							        		<div class="p-col-12">
+							        			<h:outputText value="#{labels['euroActsList.naim']}" styleClass="form-label req"/>
+								        		<p:inputTextarea value="#{dossierBean.act.ime}" id="actName"  readonly="#{isView eq 1}"/>
+								        	</div>
+								        	<div class="p-col-12  p-lg-9">
+									        	<h:outputText value="#{labels['general.textOn']} #{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_VID_ACT,dossierBean.act.vidAct, dossierBean.currentLang, now)} #{dossierBean.act.rnFull}" styleClass="form-label"/>
+									        	<p:inputText value="#{dossierBean.act.url}"  readonly="#{isView eq 1}"/>
+								        	</div>
+								        	<div class="p-col-12 p-lg-3">
+								        	<h:outputText value="CELEX" styleClass="form-label"/>
+                    						<p:inputText value="#{dossierBean.act.celex}"  readonly="#{isView eq 1}"/>
+                    						</div>
+							        	</div>
+						        	</div>
+					        	</div>
+				        		
+				        		<div  class="timeline">
+						        	<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#formDossier:tabSections:dataSecА2'); return false;" >
+										<h:outputText value="#{labels['dossier.podSect']} 2 #{labels['euroAct.secAB2']}" />
+										<i class="fas fa-caret-right"></i>
+									</p:commandLink>
+									
+									<div jsf:id="dataSecА2">
+										<ibg:compActConn compAct="#{dossierBean.act}" typeConn="1" readonly="#{isView eq 1}"  id="caa2"/>
+						        	</div>
+				        		</div>
+				        		
+				        		<div  class="timeline">
+						        	<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#formDossier:tabSections:dataSecА3'); return false;" >
+										<h:outputText value="#{labels['dossier.podSect']} 3 #{labels['euroAct.secAB3']}" />
+										<i class="fas fa-caret-right"></i>
+									</p:commandLink>
+									
+									<div jsf:id="dataSecА3">
+										<ibg:compActConn compAct="#{dossierBean.act}" typeConn="2" readonly="#{isView eq 1}"  id="caa3"/>
+						        	</div>
+				        		</div>
+				        		
+				        		<div  class="timeline">
+						        	<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#formDossier:tabSections:dataSecА4I'); return false;" >
+										<h:outputText value="#{labels['dossier.podSect']} 4.1 #{labels['euroAct.secAB4i']}" />
+										<i class="fas fa-caret-right"></i>
+									</p:commandLink>
+									
+									<div jsf:id="dataSecА4I">
+										<ibg:compActConn compAct="#{dossierBean.act}" typeConn="3" readonly="#{isView eq 1}"  id="caa4"/>
+						        	</div>
+				        		</div>
+				        		
+				        		<div  class="timeline">
+						        	<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#formDossier:tabSections:dataSecА4D'); return false;" >
+										<h:outputText value="#{labels['dossier.podSect']} 4.2 #{labels['euroAct.secAB4d']}" />
+										<i class="fas fa-caret-right"></i>
+									</p:commandLink>
+									
+									<div jsf:id="dataSecА4D">
+										<ibg:compActConn compAct="#{dossierBean.act}" typeConn="4"  readonly="#{isView eq 1}"  id="caa5"/>
+						        	</div>
+				        		</div>
+				        		
+				        		<div  class="timeline">
+						        	<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#formDossier:tabSections:dataSecА5'); return false;" >
+										<h:outputText value="#{labels['dossier.podSect']} 5 #{labels['dossier.podSectA5']}" />
+										<i class="fas fa-caret-right"></i>
+									</p:commandLink>
+									
+									<div jsf:id="dataSecА5">
+										<div jsf:rendered="#{!dossierBean.direktiva}">
+								        	
+								        	<p:dataTable var="regVar" value="#{dossierBean.dossier.linksReg}"  rowIndexVar="idx" 
+												style="width: 100%" emptyMessage="#{ui_labels['general.norows']}"
+												 rendered="#{!empty dossierBean.dossier.linksReg}" >
+										
+												<p:column width="25"  headerText="#{ui_labels['general.No-symbol']}">
+													<h:outputText value="#{idx + 1}" />
+												</p:column>
+												<p:column width="35" exportable="false">
+													<p:button  icon="fas fa-eye" href="dossierBeanView.xhtml" target="_blank"  title="#{ui_labels['general.view']}"  >
+														<f:param name="faces-redirect" value="true"/>
+														<f:param name="idObj" value="#{regVar.id}"/>
+													</p:button>
+												</p:column>
+												<p:column width="*"  headerText="#{labels['euroAct.naim']}">
+													<h:outputText value="#{regVar.nameAct}" />
+												</p:column>
+			               					</p:dataTable>
+			               				</div>
+			               				
+			               				<div  jsf:rendered="#{ dossierBean.direktiva}">
+				               				<p:dataTable var="dirVar" value="#{dossierBean.dossier.linksDir}"  rowIndexVar="idx" 
+												style="width: 100%" emptyMessage="#{ui_labels['general.norows']}"
+												 rendered="#{!empty dossierBean.dossier.linksDir}" >
+										
+												<p:column width="25"  headerText="#{ui_labels['general.No-symbol']}">
+													<h:outputText value="#{idx + 1}" />
+												</p:column>
+												<p:column width="35" exportable="false">
+													<p:button  icon="fas fa-eye" href="dossierBeanView.xhtml" target="_blank"  title="#{ui_labels['general.view']}"  >
+														<f:param name="faces-redirect" value="true"/>
+														<f:param name="idObj" value="#{dirVar.id}"/>
+													</p:button>
+												</p:column>
+												<p:column width="*"  headerText="#{labels['euroAct.naim']}">
+													<h:outputText value="#{dirVar.nameAct}" />
+												</p:column>
+			               					</p:dataTable>
+							        	</div>
+						        	</div>
+				        		</div>
+				        	</div>
+				        </p:tab>
+				        <p:tab title="#{labels['dossier.section']} Б" id="sectionB" rendered="#{dossierBean.direktiva}">
+				        	
+				        	
+				        	<div jsf:rendered="#{dossierBean.direktiva}">
+					        	<h:outputText value="#{labels['dossier.sectionB1']}" styleClass="form-label" rendered="#{empty dossierBean.dossier.linksReg}"/>
+					        	<h:outputText value="#{labels['dossier.sectionB11']}" styleClass="form-label" rendered="#{!empty dossierBean.dossier.linksReg}"/>
+					        	
+					        	<p:dataTable var="regVar" value="#{dossierBean.dossier.linksReg}"  rowIndexVar="idx" 
+									style="width: 100%" emptyMessage="#{ui_labels['general.norows']}"
+									 rendered="#{!empty dossierBean.dossier.linksReg}" >
+							
+									<p:column width="25"  headerText="#{ui_labels['general.No-symbol']}">
+										<h:outputText value="#{idx + 1}" />
+									</p:column>
+									<p:column width="35" exportable="false">
+										<p:button  icon="fas fa-eye" href="dossierBeanView.xhtml" target="_blank"  title="#{ui_labels['general.view']}"  >
+											<f:param name="faces-redirect" value="true"/>
+											<f:param name="idObj" value="#{regVar.id}"/>
+										</p:button>
+									</p:column>
+									<p:column width="*"  headerText="#{labels['euroAct.naim']}">
+										<h:outputText value="#{regVar.nameAct}" />
+									</p:column>
+               					</p:dataTable>
+               				</div>
+               				
+               				<div  jsf:rendered="#{! dossierBean.direktiva}">
+	               				<h:outputText value="#{labels['dossier.sectionB2']}" styleClass="form-label" rendered="#{empty dossierBean.dossier.linksDir}"/>
+					        	<h:outputText value="#{labels['dossier.sectionB21']}" styleClass="form-label" rendered="#{!empty dossierBean.dossier.linksDir}"/>
+	               				
+	               				<p:dataTable var="dirVar" value="#{dossierBean.dossier.linksDir}"  rowIndexVar="idx" 
+									style="width: 100%" emptyMessage="#{ui_labels['general.norows']}"
+									 rendered="#{!empty dossierBean.dossier.linksDir}" >
+							
+									<p:column width="25"  headerText="#{ui_labels['general.No-symbol']}">
+										<h:outputText value="#{idx + 1}" />
+									</p:column>
+									<p:column width="35" exportable="false">
+										<p:button  icon="fas fa-eye" href="dossierBeanView.xhtml" target="_blank"  title="#{ui_labels['general.view']}"  >
+											<f:param name="faces-redirect" value="true"/>
+											<f:param name="idObj" value="#{dirVar.id}"/>
+										</p:button>
+									</p:column>
+									<p:column width="*"  headerText="#{labels['euroAct.naim']}">
+										<h:outputText value="#{dirVar.nameAct}" />
+									</p:column>
+               					</p:dataTable>
+				        	</div>
+				        </p:tab>
+				        
+				        
+				        <p:tab title="#{labels['dossier.section']} В">
+							<div class="layout-dashboard">
+							<div  class="timeline">
+							<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#dataSecB'); return false;" >
+								<h:outputText value="#{labels['dossier.sectionV']}" />
+								<i class="fas fa-caret-right"></i>
+							</p:commandLink>
+							
+							
+							<div id="dataSecB" class="timeline-row">
+								
+								<div  class="p-grid  ui-fluid ">	
+							  		<div class="p-col-12 ">	
+							  			
+							  		<p:selectOneRadio value="#{dossierBean.dossier.sectionVYesNo}"  layout="grid" columns="1" disabled="#{isView eq 1}">
+							  			<f:selectItem itemLabel="#{labels['dossier.sectionV2']}" itemValue="#{EuroConstants.CODE_ZNACHENIE_NE}" />
+           								<f:selectItem itemLabel="#{labels['dossier.sectionV1']}" itemValue="#{EuroConstants.CODE_ZNACHENIE_DA}" />
+           									<p:ajax event="change" update="panelSectionVText"/>
+							  		</p:selectOneRadio>
+								   </div>
+								   <div class="p-col-12 " jsf:id="panelSectionVText">	
+								   		<p:inputTextarea value="#{dossierBean.dossier.sectionVText}" rendered="#{dossierBean.dossier.sectionVYesNo!=null and dossierBean.dossier.sectionVYesNo == EuroConstants.CODE_ZNACHENIE_DA}"  readonly="#{isView eq 1}"/>	
+								   </div>
+							   </div>
+							</div>
+							</div>
+							</div>
+						</p:tab>
+				        <p:tab title="#{labels['dossier.section']} Г">
+							<div class="layout-dashboard">
+							<div  class="timeline">
+					        	<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#formDossier:tabSections:dataSecG'); return false;" >
+									<h:outputText value="#{labels['euroAct.secG']}" />
+									<i class="fas fa-caret-right"></i>
+								</p:commandLink>
+								
+								<div jsf:id="dataSecG">
+									<ibg:compActConn compAct="#{dossierBean.act}" typeConn="5"  readonly="#{isView eq 1}" id="caa1"/>
+					        	</div>
+			        		</div>
+							</div>
+						</p:tab>
+				        <p:tab title="#{labels['dossier.section']} Д">
+							<div class="layout-dashboard">
+							<div  class="timeline">
+					        	<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#formDossier:tabSections:dataSecD'); return false;" >
+									<h:outputText value="#{labels['euroAct.secD']}" />
+									<i class="fas fa-caret-right"></i>
+								</p:commandLink>
+								
+								<div jsf:id="dataSecD" class="timeline-row">
+									
+									<div  class="p-grid  ui-fluid ">	
+										<div class="p-col-12 ">	
+								  			
+									  		<p:selectOneRadio value="#{dossierBean.act.sectionDYesNo}"  layout="grid" columns="1" disabled="#{isView eq 1}">
+									  			<f:selectItem itemLabel="#{labels['dossier.sectionD1']}" itemValue="#{EuroConstants.CODE_ZNACHENIE_NE}" />
+		           								<f:selectItem itemLabel="#{labels['dossier.sectionD2']}" itemValue="#{EuroConstants.CODE_ZNACHENIE_DA}" />
+		           									<p:ajax event="change" update="dataSecD"/>
+									  		</p:selectOneRadio>
+									    </div>								    
+								  		<div class="p-col-12 " jsf:id="panelSectionDText">	
+											<p:inputTextarea value="#{dossierBean.act.sectionDText}" rows="7" rendered="#{dossierBean.act.sectionDYesNo!= null and dossierBean.act.sectionDYesNo == EuroConstants.CODE_ZNACHENIE_DA}"  readonly="#{isView eq 1}"/>
+										</div>
+										<div class="p-col-12 " jsf:id="panelSectionDUrl" jsf:rendered="#{dossierBean.act.sectionDYesNo!= null and dossierBean.act.sectionDYesNo == EuroConstants.CODE_ZNACHENIE_DA}">	
+										    <h:outputText value="URL" styleClass="form-label"/>
+											<p:inputTextarea value="#{dossierBean.act.sectionDUrl}" rows="5" readonly="#{isView eq 1}"/>
+										</div>
+									
+									</div>
+									
+					        	</div>
+			        		</div>
+							</div>
+
+						</p:tab>
+				        <p:tab title="#{labels['dossier.section']} Е">
+						
+							<div class="layout-dashboard">
+							<div  class="timeline">
+					        	<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#formDossier:tabSections:dataSecE'); return false;" >
+									<h:outputText value="#{labels['euroAct.secE']}" />
+									<i class="fas fa-caret-right"></i>
+								</p:commandLink>
+								
+								<div jsf:id="dataSecE">
+									
+									<ibg:compActSecE act="#{dossierBean.act}"  readonly="#{isView eq 1}"/>
+					        	</div>
+			        		</div>
+							</div>
+							
+						</p:tab>
+				        <p:tab title="#{labels['dossier.section']} Ж">
+				        	<div class="layout-dashboard">
+							<div  class="timeline">
+				        	<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#formDossier:tabSections:dataSecJ'); return false;" >
+								<h:outputText value="#{labels['dossier.sectionJ']}" />
+								<i class="fas fa-caret-right"></i>
+							</p:commandLink>
+							
+							<div jsf:id="dataSecJ" class="timeline-row">
+								   <div  class="p-grid  ui-fluid ">	
+								  		<div class="p-col-12 ">	
+								  			
+								  		<p:selectOneRadio value="#{dossierBean.dossier.notificationsYesNo}"  layout="grid" columns="1" disabled="#{isView eq 1}">
+								  			<f:selectItem itemLabel="#{labels['dossier.sectionJ2']}" itemValue="#{EuroConstants.CODE_ZNACHENIE_NE}" />
+								  			<f:selectItem itemLabel="#{labels['dossier.sectionJ1']}" itemValue="#{EuroConstants.CODE_ZNACHENIE_DA}" />
+	           									<p:ajax event="change" update="dataSecJ"/>
+								  		</p:selectOneRadio>
+									   </div>
+									   <div class="p-col-8 " jsf:rendered="#{dossierBean.dossier.notificationsYesNo!=null and dossierBean.dossier.notificationsYesNo== EuroConstants.CODE_ZNACHENIE_DA}">	
+									   		<h:outputText value="#{labels['dossier.notifNumber']}" styleClass="form-label"/>
+									   		<p:inputText value="#{dossierBean.dossier.notificationsNumber}"  readonly="#{isView eq 1}"/>	
+									   </div>
+									   <div class="p-col-4 "  jsf:rendered="#{dossierBean.dossier.notificationsYesNo!=null and dossierBean.dossier.notificationsYesNo== EuroConstants.CODE_ZNACHENIE_DA}">	
+									   		<h:outputText value="#{labels['dossier.notidDate']}" styleClass="form-label"/>
+									   		
+									  		<p:datePicker showIcon="true" mask="true"   pattern="dd.MM.yyyy" locale="bg"
+								    			value="#{dossierBean.dossier.notificationsDate}"  readonly="#{isView eq 1}">
+											</p:datePicker> 
+									   </div>
+									   <div class="p-col-12 "  jsf:rendered="#{dossierBean.dossier.notificationsYesNo!=null and dossierBean.dossier.notificationsYesNo== EuroConstants.CODE_ZNACHENIE_DA}">	
+									   		<h:outputText value="#{labels['euroActEdit.actUrl']}" styleClass="form-label"/>
+									   		<p:inputText value="#{dossierBean.dossier.notificationsURL}"  readonly="#{isView eq 1}"/>	
+									   </div>
+								   </div>
+							</div>
+							</div>
+							</div>
+				        </p:tab>
+				        <p:tab title="#{labels['dossier.section']} З">
+							<div class="layout-dashboard">
+							<div  class="timeline">
+					        	<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '#formDossier:tabSections:dataSecZ'); return false;" >
+									<h:outputText value="#{labels['euroAct.secZ']}" />
+									<i class="fas fa-caret-right"></i>
+								</p:commandLink>
+								
+								<div jsf:id="dataSecZ">
+									<ibg:compActSecZ  act="#{dossierBean.act}"  readonly="#{isView eq 1}"/>
+					        	</div>
+			        		</div>
+							</div>
+						</p:tab>
+				        <p:tab title="#{labels['dossier.section']} И">
+				        	<div class="layout-dashboard">
+							<div  class="timeline">
+							 <div  class="p-grid  ui-fluid timeline-row">	
+						  		<div class="p-col-12 ">	
+						  			<h:outputText value="#{labels['dossier.sectionI1']}" styleClass="form-label"/>
+						  			<p:inputTextarea value="#{dossierBean.dossier.sectionI1}"  readonly="#{isView eq 1}"/>
+						  		</div>
+						  		<div class="p-col-12 ">	
+						  			<h:outputText value="#{labels['dossier.sectionI2']}" styleClass="form-label"/>
+						  			<p:inputTextarea value="#{dossierBean.dossier.sectionI2}"  readonly="#{isView eq 1}"/>
+						  		</div>
+						  		<div class="p-col-12 ">	
+						  			<h:outputText value="#{labels['dossier.sectionI3']}" styleClass="form-label"/>
+						  			<p:inputTextarea value="#{dossierBean.dossier.sectionI3}"  readonly="#{isView eq 1}"/>
+						  		</div>
+						  		<div class="p-col-12 ">	
+						  			<h:outputText value="#{labels['dossier.sectionI4']}" styleClass="form-label"/>
+						  			<p:inputTextarea value="#{dossierBean.dossier.sectionI4}"  readonly="#{isView eq 1}"/>
+						  		</div>
+							 </div>
+							</div>
+							</div>
+						</p:tab>
+				        
+				    </p:tabView>
+					</div>
+				</div>
+				
+				
+			</div>
+		
+		
+
+		<p:dialog id="searchLawHarmId"  closeOnEscape="true" header=" " styleClass="line-reset"
+			fitViewport="true" resizable="true" responsive="true" position="top" widgetVar="searchLawHarm" dynamic="true" modal="true" >
+				<div class="container #{guestPreferences.containerPosition}">
+				<div class="card" jsf:id="panelFilterSLH">
+					<div class="p-grid">
+						<!--ДЕЛОВОДЕН НОМЕР -->
+							<div class="p-col-12 p-sm-5 p-md-4 p-lg-4 p-xl-4  ui-fluid">
+								<h:outputText value="#{labels['euroHarmSearch.delNum']}"
+									styleClass="form-label" />
+								<p:inputText value="#{dossierBean.euroHarmSearch.rnDoc}" />
+							</div>
+							
+							<!-- НАИМЕНОВАНИЕ -->
+							<div class="p-col-12 p-sm-7 p-md-8 p-lg-8 p-xl-8 ui-fluid">
+								<h:outputText value="#{labels['euroHarmSearch.naim']}" styleClass="form-label" />
+								<p:inputText id="naimHarm" value="#{dossierBean.euroHarmSearch.naim}" />
+							</div>
+							
+							<!--ПЕРИОД-->
+							<div class="p-col-12 p-sm-12 p-md-4 p-lg-4 p-xl-4  ui-fluid">
+								<h:outputText value="#{ui_labels['general.period']}" styleClass="form-label" />
+								<p:selectOneMenu id="idPerR" value="#{dossierBean.periodSel}">
+									<f:selectItem value="#{null}" itemValue="#{null}" />
+									<f:selectItems value="#{systemData.getSysClassification(dossierBean.periodNoFuture, now, dossierBean.currentLang)}"
+										var="clPer" itemLabel="#{clPer.tekst}" itemValue="#{clPer.code}" />
+									<p:ajax event="change" update="idPerR dateOtReg dateDoReg" listener="#{dossierBean.changePeriod}" />
+								</p:selectOneMenu>
+							</div>
+							
+							<!--ДАТА ОТ-->
+							<div class="p-col-6 p-sm-6 p-md-4 p-lg-4 p-xl-4  ui-fluid">
+								<h:outputText value="#{ui_labels['general.dataOt']}" styleClass="form-label" />
+								<p:datePicker  id="dateOtReg"  showIcon="true" mask="true"   pattern="dd.MM.yyyy" locale="bg" 
+								    value="#{dossierBean.euroHarmSearch.datZakonOt}" >
+								    <p:ajax event="change" update="idPerR" listener="#{dossierBean.changeDate}"  partialSubmit="true" process="@this"/>
+									<p:ajax event="dateSelect" update="idPerR" listener="#{dossierBean.changeDate}" partialSubmit="true" process="@this"/>
+								</p:datePicker> 
+							</div>
+
+							<!--ДАТА ДО-->
+							<div class="p-col-6 p-sm-6 p-md-4 p-lg-4 p-xl-4  ui-fluid">
+								<h:outputText value="#{ui_labels['general.dataDo']}" styleClass="form-label" />
+								<p:datePicker  id="dateDoReg"  showIcon="true" mask="true"   pattern="dd.MM.yyyy" locale="bg"
+								    value="#{dossierBean.euroHarmSearch.datZakonDo}" >
+								    <p:ajax event="change" update="idPerR" listener="#{dossierBean.changeDate}" partialSubmit="true" process="@this"/>
+									<p:ajax event="dateSelect" update="idPerR" listener="#{dossierBean.changeDate}" partialSubmit="true" process="@this"/>
+								</p:datePicker> 
+							</div>
+
+							
+					</div>
+					
+					<!--БУТОНИ-->
+					<div class="filter-buttons">
+						<p:commandButton icon="fas fa-search" value="#{ui_labels['general.search']}" id="btnSearch"
+							update="dataTableSLH" partialSubmit="true"
+							process="@this panelFilterSLH"
+							actionListener="#{dossierBean.actionSearchLawHarm}" />
+
+						<p:commandButton icon="fas fa-eraser" value="#{ui_labels['general.clear']}" id="btnClear"
+							update="dataTableSLH panelFilterSLH" partialSubmit="true"
+							process="@this panelFilterSLH"
+							actionListener="#{dossierBean.actionClearLawHarm}" styleClass="ui-button-warning p-ml-2" />
+					</div>
+				</div>
+				
+				<p:dataTable id="dataTableSLH" var="row" lazy="true"
+					rowIndexVar="idx" value="#{dossierBean.euroHarmList}"
+					emptyMessage="#{ui_labels['general.norows']}" rows="15"
+					sortMode="single" reflow="true"
+					paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+					rowsPerPageTemplate="5,10,15,20,25" paginatorPosition="bottom"
+					paginatorAlwaysVisible="true" paginator="true">
+
+					<p:column width="30" headerText="#{ui_labels['general.No-symbol']}">
+						<h:outputText value="#{idx + 1}" />
+					</p:column>
+
+					<p:column width="30" >
+						<p:commandButton 
+							    title="#{ui_labels['general.choise']}"									
+							    action="#{dossierBean.actionSelectLawHarm(row)}"					
+							    partialSubmit="true" 
+							    process="@this"
+								update="formDossier:panelLawHarm formDossier:dvBrV formDossier:dvGodV"
+								oncomplete="PF('searchLawHarm').hide();"
+								icon="fas fa-hand-point-down" styleClass="btn-normal"/>											
+						
+					</p:column>
+
+					<p:column width="120" sortBy="#{row.NOMER_DOC}" headerText="#{labels['euroHarmSearch.delNum']}">
+						<h:outputText value="#{row[2]}" />
+					</p:column>
+
+					<p:column width="90" headerText="#{ui_labels['general.date']}" sortBy="#{row.DAT_DOC}">
+						<h:outputText value="#{row[3]}">
+							<f:convertDateTime pattern="dd.MM.yyyy" timeZone="#{dossierBean.timeZone}" />
+						</h:outputText>
+					</p:column>
+
+					<p:column headerText="#{labels['euroHarmSearch.naim']}" sortBy="#{row.IME}">
+						<h:outputText value="#{row[4]}" />
+					</p:column>
+					
+					<p:column headerText="#{labels['general.broj']}" sortBy="#{row.BROI_DV}" width="130" >
+						<h:outputText value="#{row[6]}" />
+					</p:column>
+
+				</p:dataTable>
+				</div>
+		</p:dialog>
+		
+ 		</h:form>
+ </ui:composition>
+
+

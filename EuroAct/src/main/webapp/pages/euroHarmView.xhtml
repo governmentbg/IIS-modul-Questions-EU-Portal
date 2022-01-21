@@ -1,0 +1,198 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:ibg="http://java.sun.com/jsf/composite/components"
+	template="/template/templateView.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<!-- <f:viewAction action="#{userData.checkPageAccess(null)}" onPostback="false" /> -->
+			<f:importConstants type="com.ib.euroact.system.EuroConstants" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="title">#{navTexts['/pages/euroHarmView.xhtml']}</ui:define>
+
+	<ui:define name="viewname">
+		<li>#{navTexts['/pages/euroHarmView.xhtml']}</li>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="formEuroHarmView">
+			<div class="#{guestPreferences.containerPosition}">
+
+				<!--ФИЛТЪР -->
+
+				<div class="card">
+					<div class="p-grid ui-fluid p-align-end">
+
+						<!--ДЕЛОВОДЕН НОМЕР -->
+						<div class="p-col-12 p-sm-12 p-md-2 p-lg-2 p-xl-2  ui-fluid">
+							<h:outputText value="#{labels['euroHarmSearch.delNum']}"
+								styleClass="form-label" />
+							<p:inputText value="#{euroHarmView.harm.nomerDoc}"
+								readonly="true" />
+						</div>
+
+						<!--СЪСТОЯНИЕ -->
+						<div class="p-col-12 p-sm-12 p-md-2 p-lg-2 p-xl-2  ui-fluid">
+							<h:outputText value="#{labels['euroHarmSearch.sastoianie']}"
+								styleClass="form-label" />
+							<p:inputText value="#{euroHarmView.harm.sastoianie}"
+								readonly="true" />
+						</div>
+
+						<!--ДАТА НА ПРИЕМАНЕ -->
+						<div class="p-col-12 p-sm-12 p-md-2 p-lg-2 p-xl-2  ui-fluid">
+							<h:outputText value="#{labels['euroHarmView.dataPriemane']}"
+								styleClass="form-label" />
+							<p:inputText value="#{euroHarmView.harm.datPriemane}" readonly="true">
+								<f:convertDateTime pattern="dd.MM.yyyy"
+									timeZone="#{euroHarmView.timeZone}" />
+							</p:inputText>
+						</div>
+
+						<!-- ЗАКОНОПРОЕКТ -->
+						<div class="p-col-12 p-sm-12 p-md-12 p-lg-12">
+							<h:outputText value="#{labels['euroHarmView.zakonoproekt']}"
+								styleClass="form-label" />
+							<p:inputTextarea value="#{euroHarmView.harm.imeZakon}" rows="3"
+								readonly="true" />
+						</div>
+
+						<!-- ЗАКОН -->
+						<div class="p-col-12 p-sm-12 p-md-12 p-lg-12">
+							<h:outputText value="#{labels['euroHarmView.zakon']}"
+								styleClass="form-label" />
+							<p:inputTextarea value="#{euroHarmView.harm.ime}" rows="3"
+								readonly="true" />
+						</div>
+
+						<!-- ВНОСИТЕЛИ -->
+						<div class="p-col-12 p-sm-12 p-md-12 p-lg-12">
+							<h:outputText value="#{labels['euroHarmView.vnositeli']}"
+								styleClass="form-label" />
+							<p:inputTextarea value="#{euroHarmView.harm.vnositel}" rows="3"
+								readonly="true" />
+						</div>
+
+						<!-- ВОДЕЩА КОМИСИЯ -->
+						<div class="p-col-12 p-sm-12 p-md-12 p-lg-12">
+							<h:outputText value="#{labels['euroHarmView.komisia']}"
+								styleClass="form-label" />
+							<p:inputText value="#{euroHarmView.harm.vodesta}" readonly="true" />
+						</div>
+
+						<!--ПЪРВО ЧЕТЕНЕ -->
+						<div class="p-col-12 p-sm-12 p-md-2 p-lg-2 p-xl-2  ui-fluid">
+							<h:outputText value="#{labels['euroHarmView.chetene']}"
+								styleClass="form-label" />
+							<p:inputText value="#{euroHarmView.harm.datParvo}" readonly="true">
+								<f:convertDateTime pattern="dd.MM.yyyy"
+									timeZone="#{euroHarmView.timeZone}" />
+							</p:inputText>
+						</div>
+
+						<!-- СТРАННИЦИ-->
+						<div class="p-col-12 p-sm-2 p-md-2 p-lg-2  p-xl-2  ui-fluid">
+							<h:outputText value="#{labels['euroHarmView.pages']}"
+								styleClass="form-label" />
+							<p:inputText value="#{euroHarmView.harm.pages}" readonly="true" />
+						</div>
+
+						<!-- ПРИОРИТЕТЕН-->
+						<div class="p-col-12 p-sm-2 p-md-2 p-lg-2  p-xl-2  ui-fluid"
+							style="display: flex; align-items: center;">
+							<p:selectBooleanCheckbox value="#{euroHarmView.priority}"
+								itemLabel="#{labels['euroHarmSearch.priority']}" disabled="true" />
+						</div>
+
+						<!-- ОТГОВАРЯЩ -->
+						<div class="p-col-12 p-sm-12 p-md-12 p-lg-12">
+							<h:outputText value="#{labels['euroHarmView.otgovariasht']}"
+								styleClass="form-label" />
+							<p:inputText value="" readonly="true" />
+						</div>
+
+						<!-- БЕЛЕЖКИ ЕС -->
+						<div class="p-col-12 p-sm-12 p-md-12 p-lg-12">
+							<h:outputText value="#{labels['euroHarmView.notesES']}"
+								styleClass="form-label" />
+							<p:inputTextarea value="#{euroHarmView.harm.belejkiEs}" rows="3"
+								readonly="true" />
+						</div>
+
+						<!-- БЕЛЕЖКИ Правен -->
+						<div class="p-col-12 p-sm-12 p-md-12 p-lg-12">
+							<h:outputText value="#{labels['euroHarmView.notesPr']}"
+								styleClass="form-label" />
+							<p:inputTextarea value="#{euroHarmView.harm.belejkiPraven}"
+								rows="3" readonly="true" />
+						</div>
+					</div>
+
+					<p:outputPanel id="accordion">
+						<br />
+
+						<p:accordionPanel activeIndex="-1" dynamic="true"
+							id="panelAccordHarm">
+
+							<!--  <p:tab title="#{labels['euroHarmView.poAktove']}"
+								titleStyle="font-weight: bold" id="harmActs">
+
+								<div class="timeline">
+									<div jsf:id="dataForHarmActs">
+
+										<p:dataTable var="row" value="" rowIndexVar="idx"
+											style="width: 100%"
+											emptyMessage="#{ui_labels['general.norows']}">
+
+											<p:column width="25"
+												headerText="#{ui_labels['general.No-symbol']}">
+												<h:outputText value="#{idx + 1}" />
+											</p:column>
+										</p:dataTable>
+									</div>
+								</div>
+							</p:tab> -->
+
+							<p:tab title="#{labels['euroHarmView.poGlava']}"
+								titleStyle="font-weight: bold" id="harmGlava"
+								rendered="#{!empty euroHarmView.harm.glavi}">
+
+								<div class="timeline">
+									<div jsf:id="dataForHarmGlava">
+
+										<p:dataTable var="row" value="#{euroHarmView.harm.glavi}"
+											rowIndexVar="idx" style="width: 100%"
+											emptyMessage="#{ui_labels['general.norows']}">
+
+											<p:column width="25"
+												headerText="#{ui_labels['general.No-symbol']}">
+												<h:outputText value="#{idx + 1}" />
+											</p:column>
+
+											<p:column headerText="#{labels['euroHarmView.poGlava']}">
+												<h:outputText value="#{row}" />
+											</p:column>
+
+										</p:dataTable>
+									</div>
+								</div>
+							</p:tab>
+
+						</p:accordionPanel>
+					</p:outputPanel>
+				</div>
+			</div>
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>
+

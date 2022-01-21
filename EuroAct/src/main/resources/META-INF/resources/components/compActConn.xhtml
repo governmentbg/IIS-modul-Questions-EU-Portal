@@ -1,0 +1,309 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:c="http://java.sun.com/jstl/core"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:cc="http://java.sun.com/jsf/composite"
+	  xmlns:pe="http://primefaces.org/ui/extensions"
+	  xmlns:ibg="http://java.sun.com/jsf/composite/components" > 	  
+	  
+
+<cc:interface componentType="compActConn">
+   		 
+   <cc:attribute name="compAct" 		type="java.lang.Object"	 shortDescription="обект акт" default="#{null}"/>
+   <cc:attribute name="typeConn"	    type="java.lang.Integer" shortDescription="Тип на връзката" default="1" />
+   <cc:attribute name="update" 		  	type="java.lang.String"  shortDescription="Полета, които трябва да се обновят" />
+   <cc:attribute name="readonly"       	type="java.lang.Boolean" shortDescription="Само за разглеждане" default="false" />
+   <cc:attribute name="onComplete"     	type="java.lang.String"  shortDescription="Изпълнява функция при връщане на резултата - подава се името на функцията" />
+   
+</cc:interface>
+
+<cc:implementation>
+
+	<style type="text/css">
+		body .ui-dialog.line-reset .ui-dialog-content {
+	    	line-height: inherit;
+		}
+	</style>		
+
+ <f:event type="preRenderComponent" listener="#{cc.init()}" /> <!--  За да се инициализира компонентата-->
+			
+		<div class="timeline-row" jsf:id="panelConn" jsf:rendered="#{cc.showMe}">
+			
+			<div jsf:rendered="#{cc.attrs.typeConn eq 3 or cc.attrs.typeConn eq 4}" class="p-grid ui-fluid">
+				<div class="p-col-12">
+					<h:outputText value="#{labels['euroAct.toAct']}" styleClass="form-label" />
+					
+					<p:selectOneMenu value="#{cc.attrs.typeConn eq 3?cc.compAct.izpalnenieActYesNo:cc.compAct.delegiraniActsYesNo}" style="width: 20%" styleClass="small p-mx-2" disabled="#{cc.attrs.readonly}">
+						<f:selectItems value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_AB4, now, cc.lang)}"
+							var="itemSc" itemLabel="#{itemSc.tekst}" itemValue="#{itemSc.code}" />
+						<p:ajax event="change" update="#{cc.clientId}:panelDataActs" listener="#{cc.actionShowPanel}"/>
+					</p:selectOneMenu>
+					
+					<h:outputText value="#{labels['euroAct.actForIzp']}" styleClass="form-label" />
+				</div>
+			</div>
+			
+			
+			<div jsf:rendered="#{cc.attrs.typeConn eq 5}" class="p-grid ui-fluid" >
+				<div class="p-col-12">
+				<p:selectBooleanCheckbox value="#{cc.compAct.sectionGYesNoBool}" itemLabel="#{labels['euroAct.secGYN']}" styleClass="form-label" disabled="#{cc.attrs.readonly}">
+					<p:ajax event="change" update="#{cc.clientId}:panelDataActs" listener="#{cc.actionShowPanel}" />
+				</p:selectBooleanCheckbox>
+				</div>
+			</div>
+			
+			<div jsf:id="panelDataActs" >
+			<div jsf:rendered="#{cc.showPanelDataActs}">
+			<div jsf:rendered="#{!cc.attrs.readonly}">
+				<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '##{cc.clientId}:dataActConn'); return false;" id="titleLink">
+					<h:outputText value="#{labels['euroAct.addAct']}" />
+					<i class="fas fa-caret-right"></i>
+				</p:commandLink>
+				
+				<p:commandButton id="bntNewAB2" styleClass="btn-new p-ml-2" update="#{cc.clientId}:dataActConn #{cc.clientId}:dialogActDataId  #{cc.clientId}:dialogActSearchId" action="#{cc.actionNewConn}"
+					icon="fas fa-plus"
+					oncomplete="toggleSection(this, '##{cc.clientId}:dataActConn')" />
+			</div>
+			
+			<div jsf:id="dataActConn"   style="display: none;" jsf:rendered="#{!cc.attrs.readonly}">
+				<div jsf:id="dataActConnGrid" class="p-grid ui-fluid">
+					
+					
+					<div class="p-col-12">
+						<p:toolbar>
+							<f:facet name="left">
+								<p:commandButton icon="fas fa-save" action="#{cc.actionSaveConn()}" value="#{ui_labels['general.save']}"
+																update="#{cc.clientId}:dataActConnGrid #{cc.clientId}:tblConnList" />
+							</f:facet>
+						</p:toolbar>
+						<div class="p-grid ui-fluid">
+
+							<!-- Действие -->
+							<div class="p-col-12 p-sm-12 p-md-4 p-lg-4" jsf:rendered="#{cc.attrs.typeConn eq 1 or cc.attrs.typeConn eq 2}">
+								<h:outputText value="#{labels['euroAct.role']}" styleClass="form-label req" />
+								<p:selectOneMenu value="#{cc.editConn.role}" id="actionSec">
+									<f:selectItem value="#{null}" itemValue="#{null}" />
+									<f:selectItems value="#{cc.scList}" var="itemSc" itemLabel="#{itemSc.tekst}" itemValue="#{itemSc.code}" />
+								</p:selectOneMenu>
+								
+							</div>
+
+							<!-- Избор на акт -->
+							<div jsf:id="selectAct" class="p-col-12">
+
+								<h:outputText value="#{labels['euroAct.selectAct']}" styleClass="form-label req" />
+								
+								<div class="select-modal-wrapper">
+									<ibg:selectOneModalA 
+										id="actForSec" saveStateTree="false" filtered="false"
+										codeClassif="#{cc.attrs.typeConn eq 5?EuroConstants.CODE_SYSCLASS_SAD_ACT:EuroConstants.CODE_SYSCLASS_EURO_ACT}"
+										dateClassif="#{now}" styleAutoComp="width:97%;"
+										withBtnClear="true"
+										selectedCode="#{cc.editConn.actId}"
+										selectedText="#{cc.editConn.nameAct}"
+										itemtipAtPosition="right center" compType="3" 
+										update="#{cc.clientId}:selectActbnts"/>
+										
+ 									<div jsf:id="selectActbnts">
+										<p:commandButton icon="fas fa-list-ul"
+											rendered="#{cc.editConn.actId eq null}"
+											partialSubmit="true" process="@this"
+											update="#{cc.clientId}:dialogActSearchId"
+											styleClass="select-modal-button"
+											style="margin-right: 35px;  width: 34px;"
+											oncomplete="PF('dialogActSearch').show();"
+											title="#{labels['euroAct.searchAct']}" />
+	
+										<p:commandButton id="btnActNewAB2" icon="#{cc.editConn.actId ne null?'fas fa-edit':'fas fa-plus'}"
+											partialSubmit="true" process="@this"
+											update="#{cc.clientId}:dialogActDataId"
+											styleClass="select-modal-button" style="width: 34px;" 
+											oncomplete="PF('dialogActData').show();"
+											title="#{cc.editConn.actId ne null?labels['euroAct.editAct']:labels['euroAct.newAct']} " />
+									</div>
+
+								</div>
+							
+							</div>
+
+							<!-- Забележка-->
+							<div class="p-col-12">
+								<h:outputText value="#{labels['euroAct.note']}" styleClass="form-label" />
+								<p:inputText  value="#{cc.editConn.note}" />
+							</div>
+
+						</div>
+					</div>
+					<div class="p-col-12">
+					<hr/>
+					</div>
+				
+				</div>
+			</div>
+			<div jsf:id="tblConnList">
+			<p:dataTable  var="row" value="#{cc.compConnList}" rows="5" rowIndexVar="idx"  rendered="#{!empty cc.compConnList}"
+				style="width: 100%" scrollable="true" scrollWidth="100%" emptyMessage="#{ui_labels['general.norows']}"
+				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} "
+				rowsPerPageTemplate="5,10,15,20,25" paginatorPosition="bottom" paginator="true" paginatorAlwaysVisible="true">
+		
+				<p:column width="25" exportable="false" headerText="#{ui_labels['general.No-symbol']}">
+					<h:outputText value="#{idx + 1}" />
+				</p:column>
+		
+				<p:column width="35" exportable="false" rendered="#{!cc.attrs.readonly}">
+					<p:commandButton icon="fas fa-edit" action="#{cc.actionEditConn(row)}" title="#{ui_labels['general.edit']}" update="#{cc.clientId}:dataActConn  #{cc.clientId}:dialogActDataId "
+						oncomplete="toggleSection(this, '##{cc.clientId}:dataActConn')" />
+				</p:column>
+				
+				<p:column width="35" exportable="false" rendered="#{cc.attrs.readonly}">
+					<p:commandButton icon="fas fa-eye" update="#{cc.clientId}:dialogViewActDataId" 
+					 actionListener="#{cc.actionViewAct(row)}"
+					oncomplete="PF('dialogViewActData').show();"  title="#{labels['euroAct.viewAct']} " />
+				</p:column>
+		
+				<p:columns value="#{cc.columns}" var="column" width="#{column.width}" >
+					<f:facet name="header">
+		                <h:outputText value="#{column.header}" />
+		            </f:facet>
+		            
+		            <h:outputText value="#{row[column.property]}"  rendered="#{column.columnTypeValue eq 0}"/>
+		            
+		            <p:linkButton href="#{row[column.property]}"    target="_blank" icon="fas fa-link" rendered="#{column.columnTypeValue eq 1 and row[column.property] ne null}"/>
+				</p:columns>
+				
+				
+				
+				<p:column width="35" exportable="false"  rendered="#{!cc.attrs.readonly}">
+					<p:commandButton icon="fas fa-trash" action="#{cc.actionDeleteConn(row)}" onclick="if(!confirm('#{beanMessages['general.confirmDeleteMsg']}'))return false;"
+						title="#{ui_labels['general.delete']}" styleClass="ui-button-danger" update="#{cc.clientId}:tblConnList #{cc.clientId}:dataActConn"/>
+				</p:column>
+			
+			</p:dataTable>
+			</div>
+			</div>
+			</div>
+			<!-- Обща забележка-->
+			<div class="p-grid ui-fluid">
+				<div class="p-col-12">
+					<h:outputText value="#{labels['euroAct.note']}" styleClass="form-label" />
+					<p:inputTextarea id="notesAB2"  value="#{cc.compAct.noteAB2}"  rows="3"  rendered="#{cc.attrs.typeConn eq 1}" readonly="#{cc.attrs.readonly}"/>
+					<p:inputTextarea id="notesAB3"  value="#{cc.compAct.noteAB3}"  rows="3"  rendered="#{cc.attrs.typeConn eq 2}" readonly="#{cc.attrs.readonly}"/>
+					<p:inputTextarea id="notesAB4I" value="#{cc.compAct.noteAB4I}" rows="3"  rendered="#{cc.attrs.typeConn eq 3}" readonly="#{cc.attrs.readonly}"/>
+					<p:inputTextarea id="notesAB4D" value="#{cc.compAct.noteAB4D}" rows="3"  rendered="#{cc.attrs.typeConn eq 4}" readonly="#{cc.attrs.readonly}"/>
+					<p:inputTextarea id="notesG"    value="#{cc.compAct.noteG}"    rows="3"  rendered="#{cc.attrs.typeConn eq 5}" readonly="#{cc.attrs.readonly}"/>
+				</div>
+			</div>
+			
+			<!-- модален с компонент за търсене на акт-->
+			<p:dialog id="dialogActSearchId" appendTo="@form" widgetVar="dialogActSearch" closeOnEscape="true" header="#{labels['euroAct.searchAct']}" 
+				fitViewport="true" responsive="true" resizable="true" positionType="fixed" position="top" modal="true" dynamic="true" rendered="#{!cc.attrs.readonly}">
+	
+				<div class="container #{guestPreferences.containerPosition}">
+	
+					<ibg:compActSearch id="searchActCompId" 
+						codeAct="#{cc.editConn.actId}"
+						searchTxt="#{cc.editConn.nameAct}" 
+						dateClassif="#{now}" modal="true" update="#{cc.clientId}:selectAct"
+						onComplete="PF('dialogActSearch').hide();" onlySadAct="#{cc.attrs.typeConn eq 5?true:false}"/>
+				</div>
+	
+			</p:dialog>
+	
+			<!-- модален с компонент за редактиране на данни на акт -->
+			<p:dialog id="dialogActDataId" appendTo="@form" closeOnEscape="true" header="#{labels['euroAct.editAct']} / #{labels['euroAct.newAct']}" styleClass="line-reset"
+				fitViewport="true" resizable="true" responsive="true" position="top" widgetVar="dialogActData" dynamic="true" modal="true" rendered="#{!cc.attrs.readonly}">
+	
+				<div class="container #{guestPreferences.containerPosition}">
+	
+					<ibg:compActData id="editActCompId"
+						codeAct="#{cc.editConn.actId}"
+						searchTxt="#{cc.editConn.nameAct}" 
+						dateClassif="#{now}" modal="true" update="#{cc.clientId}:selectAct"
+						onComplete="PF('dialogActData').hide();" />
+	
+				</div>
+	
+			</p:dialog>
+			
+			<!-- модален с компонент за разглеждане на данни на акт -->
+			<p:dialog id="dialogViewActDataId" appendTo="@form" closable="true" header="#{labels['euroAct.viewAct']}" styleClass="line-reset"
+				width="900" height="400" resizable="true" responsive="true"  position="center" widgetVar="dialogViewActData"  modal="true" rendered="#{cc.attrs.readonly}" >		
+				
+				<div class="p-grid ui-fluid">
+			 
+			    <!-- Вид на акта -->	
+				<div class="p-col-12 p-sm-12 p-md-5 p-lg-5">
+					<h:outputText value="#{labels['euroActsList.vid']}" styleClass="form-label"/>
+					<p:inputText value="#{systemData.decodeItem(EuroConstants.CODE_SYSCLASS_VID_ACT,cc.actView.vidAct, 1, now)}" readonly="#{cc.attrs.readonly}"/>					
+				</div>
+
+				<!-- Номер на акта -->	
+				<div class="p-col-12 p-sm-12 p-md-3 p-lg-3">
+					<h:outputText value="#{labels['euroActsList.nomer']}" styleClass="form-label" />
+					<p:inputText id="nomerAct" value="#{cc.actView.rnFull}" readonly="#{cc.attrs.readonly}" />
+						
+				</div>
+				
+				<!-- CELEX -->	
+				<div class="p-col-12 p-sm-12 p-md-2 p-lg-2">
+					<h:outputText value="#{labels['euroActsList.celex']}" styleClass="form-label" />
+					<p:inputText id="celex" value="#{cc.actView.celex}" readonly="#{cc.attrs.readonly}" />
+				</div>
+				
+				
+				<!-- Наименование -->	
+				<div class="p-col-12" >									
+					<h:outputText value="#{labels['euroActsList.naim']}" styleClass="form-label"/>
+					<p:inputTextarea id="naimAct" value="#{cc.actView.ime}" rows="3" readonly="#{cc.attrs.readonly}" style="width:99%"/>												
+				</div>
+				
+				<!-- URL-->
+				<div class="p-col-12" >									
+					<h:outputText value="#{labels['euroActEdit.actUrl']}" styleClass="form-label"/>
+					<p:inputText id="urlAct" value="#{cc.actView.url}" readonly="#{cc.attrs.readonly}" style="width:99%"/>										
+				</div>
+				
+				<!-- Номер на проектоакт -->
+				<div class="p-col-4" jsf:rendered="#{cc.attrs.typeConn ne 5?true:false}">	
+					<h:outputText value="#{labels['euroActEdit.numPA']}" styleClass="form-label" />
+					<div class="ui-inputgroup inputgroup-bordered">
+						<p:selectOneMenu value="#{cc.actView.comVid}" id="comVid" disabled="#{cc.attrs.readonly}">
+							<f:selectItem value="#{null}" itemValue="#{null}" />
+							<f:selectItems value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_SIGNATURA_SERIA, now, 1)}"
+											var="itemSc" itemLabel="#{itemSc.tekst}" itemValue="#{itemSc.code}" />
+						</p:selectOneMenu>
+						<p:inputNumber id="comYear" value="#{cc.actView.comYear}"  readonly="#{cc.attrs.readonly}" />						
+						<p:inputNumber id="comNumber" value="#{cc.actView.comNumber}" readonly="#{cc.attrs.readonly}" /> 
+					</div>
+				</div>
+				
+				<!-- Описание -->	
+				<div class="p-col-12 " jsf:rendered="#{cc.attrs.typeConn eq 5?true:false}">									
+					<h:outputText value="#{labels['euroAct.noteSr']}" styleClass="form-label"/>
+					 <p:scrollPanel mode="native" style="width:100%; padding: 5px; background-color:transparent">
+					<h:outputText value="#{cc.actView.noteSr}" escape="false"/>
+					</p:scrollPanel>
+				</div>
+				
+			</div>
+				
+			<f:facet name="footer">
+		        <div align="right">
+		       	 	<p:commandButton id="bntCloseDlg" update="dialogViewActDataId" process="@this "
+		       	 	    icon="fas fa-times" styleClass="ui-button-secondary" value="#{ui_labels['general.cancel']}" oncomplete="PF('dialogViewActData').hide();" />	
+		 		</div>
+		 	</f:facet>	
+	
+			
+				
+			</p:dialog>
+		
+		</div>
+
+
+</cc:implementation>
+
+</ui:composition>

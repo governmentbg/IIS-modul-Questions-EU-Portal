@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1"
+	xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+
+	<!-- !!! за UNIT тестовете отговаря test\resources\META-INF\persistence.xml !!! -->
+
+	<persistence-unit name="hibernate" transaction-type="RESOURCE_LOCAL">
+				 
+		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+		<!-- <mapping-file>META-INF/my_orm.xml</mapping-file> -->
+
+		<!-- Use this for Production and development
+			 For traditional connection see end of file!!! -->
+		<non-jta-data-source>java:jboss/datasources/${kg.datasource}</non-jta-data-source>
+			
+	
+	
+		<class>com.ib.system.db.dto.SystemClassifOpis</class>
+		<class>com.ib.system.db.dto.SystemClassif</class> 
+		<class>com.ib.system.db.dto.SyslogicListOpisEntity</class>
+		<class>com.ib.system.db.dto.SyslogicListEntity</class>
+		<class>com.ib.system.db.dto.SystemJournal</class>
+	
+		<class>com.ib.euroact.db.dto.EuroActJournal</class>
+		<class>com.ib.system.db.dto.SystemOption</class>	
+		
+		
+		<class>com.ib.euroact.db.dto.AdmUsers</class>
+		
+				
+		<class>com.ib.euroact.db.dto.EuroActNew</class>
+		<class>com.ib.euroact.db.dto.EuroActNewConn</class>
+		<class>com.ib.euroact.db.dto.EuroActNewSectionE</class>
+		<class>com.ib.euroact.db.dto.EuroActNewSectionZ</class>
+		<class>com.ib.euroact.db.dto.Dossier</class>
+		
+		<class>com.ib.euroact.db.dto.Programa</class>
+		<class>com.ib.euroact.db.dto.PointPrograma</class>
+		
+		<class>com.ib.euroact.db.dto.EuroOtchet</class>		
+		<class>com.ib.euroact.db.dto.EuroBuletin</class>
+		
+		<class>com.ib.euroact.db.dto.Files</class>
+		
+		
+		<class>com.ib.euroact.db.dto.EuroDoc</class>
+		<class>com.ib.euroact.db.dto.EuroDocTemaNS</class>
+		<class>com.ib.euroact.db.dto.EuroDocTemaEK</class>
+		<class>com.ib.euroact.db.dto.EuroDocProcedure</class>
+		<class>com.ib.euroact.db.dto.EuroDocProcedureStan</class>
+		<class>com.ib.euroact.db.dto.EuroDocLink</class>
+		<class>com.ib.euroact.db.dto.EuroDocDosie</class>
+		<class>com.ib.euroact.db.dto.EuroDocLang</class>
+		<class>com.ib.euroact.db.dto.EuroDocStatus</class>
+		<class>com.ib.euroact.db.dto.EuroDocVraz</class>
+		
+		<exclude-unlisted-classes>true</exclude-unlisted-classes>
+		<properties>
+			<property name="db.vendor.name" value="ORACLE" />
+		
+			<!-- Use next  only for development!!! START -->
+		  	<!-- (Indexbg) 
+			 
+			<property name="hibernate.connection.url" value="jdbc:oracle:thin:@//10.29.0.202:1521/orclcyr" />
+			<property name="hibernate.connection.username" value="parlament" />
+			<property name="hibernate.connection.password" value="parlament" />
+			-->
+			
+			<!-- (NS) 		 
+			<property name="hibernate.connection.url" value="jdbc:oracle:thin:@//10.100.2.10:1521/ns" />
+			<property name="hibernate.connection.username" value="parlament" />
+			<property name="hibernate.connection.password" value="1ndexN$210" />
+				-->
+			
+			<!-- ================= -->
+		<!-- 	<property name="hibernate.connection.driver_class" value="oracle.jdbc.driver.OracleDriver" />
+			<property name="db.vendor.name" value="ORACLE" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect" />
+			<property name="hibernate.current_session_context_class" value="thread" />
+			<property name="hibernate.connection.isolation" value="TRANSACTION_READ_COMMITTED" />  
+			<property name="hibernate.show_sql" value="true" />
+			<property name="connection.pool_size" value="10"/>
+		 -->	
+			<!-- Use next  only for development!!! START -->
+		  	
+		
+			 
+			
+			
+			<property name="hibernate.generate_statistics" value="false"/>
+			<property name="hibernate.cache.infinispan.statistics" value="false"/>
+			
+	
+			<!-- <property name="hibernate.cache.use_second_level_cache" value="true" /> -->   
+            <!-- <property name="hibernate.cache.use_query_cache" value="true" /> -->
+                  
+            
+		             
+			
+		
+		
+			
+		</properties>
+	</persistence-unit>
+</persistence>

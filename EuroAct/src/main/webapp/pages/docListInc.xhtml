@@ -1,0 +1,300 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ibg="http://java.sun.com/jsf/composite/components">
+
+	<h:form id="docListForm" prependId="false">
+		
+		<!-- Филтър -->
+		<div class="container #{guestPreferences.containerPosition}">
+			<div jsf:id="filter" >
+				<div class="card">
+
+					<div class="p-grid">
+						<div class="p-col-12">
+						
+							<div class="p-grid ui-fluid">
+								
+								<!-- Сигнатура -->
+								<div class="p-col-12 p-md-6">
+									<div class="form-label">#{labels['docList.signaturaDok']}</div>
+									<div style="display: flex; align-items: center;">
+										<p:selectBooleanCheckbox value="#{docList.signaturaChecked}">
+											<p:ajax event="change" partialSubmit="true" process="@this" update="signatura" listener="#{docList.actionToggleSignatura}" />
+										</p:selectBooleanCheckbox>
+										
+										<div jsf:id="signatura" class="ui-fluid" style="flex-grow: 1; margin-left: 1em;">
+											<div class="ui-inputgroup inputgroup-bordered" jsf:rendered="#{!docList.signaturaChecked}">
+												
+												<p:selectOneMenu var="i" value="#{docList.signaturaSeria}">
+													<f:selectItem itemValue="#{null}" itemLabel="#{null}" />
+													<f:selectItems value="#{docList.signaturaOptions}" var="option" itemLabel="#{option.tekst}" itemValue="#{option}" />
+													<p:column>
+								                       #{i.tekst}
+							                      	</p:column>
+													<p:column>
+								                       #{i.dopInfo}
+								                    </p:column>
+								                    <p:ajax event="change" partialSubmit="true" process="@this" listener="#{docList.actionSelectSignatura}" />
+												</p:selectOneMenu> 
+												
+												<p:inputText value="#{docList.searchEuroDoc.signGodina}" placeholder="#{labels['docList.godina']}" maxlength="4">
+													<p:keyFilter regEx="/[\d]/"/>
+												</p:inputText>
+												
+												<p:inputText value="#{docList.searchEuroDoc.signNomer}" placeholder="#{labels['docList.nomer']}" >
+													<p:keyFilter regEx="/[\d]/"/>
+												</p:inputText>
+												
+											</div>
+											<p:inputText value="#{docList.searchEuroDoc.freeNom}" rendered="#{docList.signaturaChecked}"/>
+										</div>
+									</div>
+								</div>
+							
+								<!-- Статус -->
+								<div class="p-col-12 p-md-6">
+									<div class="form-label">#{labels['docList.status']}</div>
+									<p:selectOneMenu value="#{docList.searchEuroDoc.status}">
+										<f:selectItem value="#{null}" itemValue="#{null}" />
+										<f:selectItems value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_STATUS, now, docList.currentLang)}"
+											var="item" itemLabel="#{item.tekst}" itemValue="#{item.code}" />
+									</p:selectOneMenu>
+								</div>
+								
+								<!-- Дата на документа -->
+								<div class="p-col-12 p-sm-4 p-lg-2">
+									<div class="form-label">#{labels['docList.dokData']}</div>
+									<p:selectOneMenu id="periodDokument" value="#{docList.dokumentPeriod}">
+										<f:selectItem value="#{null}" itemValue="#{null}"/>
+										<f:selectItems  value="#{systemData.getSysClassification(DocListBean.CODE_CLASSIF_PERIOD, now, docList.currentLang)}" 
+										    var="period" itemLabel="#{period.tekst}" itemValue="#{period.code}" />
+									     <p:ajax event="change" partialSubmit="true" process="@this" update="dataDokumentOt dataDokumentDo" listener="#{docList.actionChangePeriodDokument}"/>
+									</p:selectOneMenu>
+								</div>
+							
+								<div class="p-col-6 p-sm-4 p-lg-2">
+									<div class="form-label">#{labels['docList.ot']}</div>
+									<p:datePicker id="dataDokumentOt" value="#{docList.searchEuroDoc.dateDocOt}" showIcon="true" pattern="dd.MM.yyyy">
+										<p:ajax event="dateSelect" partialSubmit="true" process="@this" update="periodDokument" listener="#{docList.setDokumentPeriod(null)}" />
+										<p:ajax event="change" partialSubmit="true" process="@this" update="periodDokument" listener="#{docList.setDokumentPeriod(null)}" />
+									</p:datePicker>
+								</div>
+								
+								<div class="p-col-6 p-sm-4 p-lg-2">
+									<div class="form-label">#{labels['docList.do']}</div>
+									<p:datePicker id="dataDokumentDo" value="#{docList.searchEuroDoc.dateDocDo}" showIcon="true" pattern="dd.MM.yyyy">
+										<p:ajax event="dateSelect" partialSubmit="true" process="@this" update="periodDokument" listener="#{docList.setDokumentPeriod(null)}" />
+										<p:ajax event="change" partialSubmit="true" process="@this" update="periodDokument" listener="#{docList.setDokumentPeriod(null)}" />
+									</p:datePicker>
+								</div>
+								
+								<!-- Дата на получаване -->
+								<div class="p-col-12 p-sm-4 p-lg-2">
+									<div class="form-label">#{labels['docList.poluchavaneData']}</div>
+									<p:selectOneMenu id="periodPoluchavane" value="#{docList.poluchavanePeriod}">
+										<f:selectItem value="#{null}" itemValue="#{null}"/>
+										<f:selectItems  value="#{systemData.getSysClassification(DocListBean.CODE_CLASSIF_PERIOD, now, docList.currentLang)}" 
+										    var="period" itemLabel="#{period.tekst}" itemValue="#{period.code}" />
+									     <p:ajax event="change" partialSubmit="true" process="@this" update="dataPoluchavaneOt dataPoluchavaneDo" listener="#{docList.actionChangePeriodPoluchavane}"/>
+									</p:selectOneMenu>
+								</div>
+							
+								<div class="p-col-6 p-sm-4 p-lg-2">
+									<div class="form-label">#{labels['docList.ot']}</div>
+									<p:datePicker id="dataPoluchavaneOt" value="#{docList.searchEuroDoc.datePoluchOt}" showIcon="true" pattern="dd.MM.yyyy">
+										<p:ajax event="dateSelect" partialSubmit="true" process="@this" update="periodPoluchavane" listener="#{docList.setPoluchavanePeriod(null)}" />
+										<p:ajax event="change" partialSubmit="true" process="@this" update="periodPoluchavane" listener="#{docList.setPoluchavanePeriod(null)}" />
+									</p:datePicker>
+								</div>
+								
+								<div class="p-col-6 p-sm-4 p-lg-2">
+									<div class="form-label">#{labels['docList.do']}</div>
+									<p:datePicker id="dataPoluchavaneDo" value="#{docList.searchEuroDoc.datePoluchDo}" showIcon="true" pattern="dd.MM.yyyy">
+										<p:ajax event="dateSelect" partialSubmit="true" process="@this" update="periodPoluchavane" listener="#{docList.setPoluchavanePeriod(null)}" />
+										<p:ajax event="change" partialSubmit="true" process="@this" update="periodPoluchavane" listener="#{docList.setPoluchavanePeriod(null)}" />
+									</p:datePicker>
+								</div>
+								
+								<!-- Тематична област на ЕК -->
+								<div class="p-col-12 p-sm-6">
+									<div class="form-label">#{labels['docList.tematichnaOblast']}</div>
+									<p:selectOneMenu value="#{docList.searchEuroDoc.temaEK}" autoWidth="false">
+										<f:selectItem value="#{null}" itemValue="#{null}"/>
+										<f:selectItems  value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_TEMATIKA_EK, now, docList.currentLang)}" 
+										    var="period" itemLabel="#{period.tekst}" itemValue="#{period.code}" />
+									</p:selectOneMenu>
+								</div>
+								
+								<!-- Вид досие -->
+								<div class="p-col-12 p-sm-6">
+									<div class="form-label">#{labels['docList.vidDosie']}</div>
+									<p:selectOneMenu value="#{docList.searchEuroDoc.vid}" autoWidth="false">
+										<f:selectItem value="#{null}" itemValue="#{null}"/>
+										<f:selectItems  value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_DOSIE, now, docList.currentLang)}" 
+										    var="period" itemLabel="#{period.tekst}" itemValue="#{period.code}" />
+									</p:selectOneMenu>
+								</div>
+								
+								<!-- Получен от -->
+								<div class="p-col-12 p-sm-3">
+									<div class="form-label">#{labels['docEdit.poluchenOt']}</div>
+									<p:selectOneMenu value="#{docList.searchEuroDoc.poluchenOt}">
+										<f:selectItem value="#{null}" itemValue="#{null}"/>
+										<f:selectItems  value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_POLUCHEN_OT, now, docEdit.currentLang)}" 
+										    var="poluch" itemLabel="#{poluch.tekst}" itemValue="#{poluch.code}" />
+									</p:selectOneMenu>
+								</div>
+								
+								<!-- Автор -->
+								<div class="p-col-12 p-sm-3">
+									<div class="form-label">#{labels['docList.avtor']}</div>
+									<p:selectOneMenu value="#{docList.searchEuroDoc.avtor}">
+										<f:selectItem value="#{null}" itemValue="#{null}"/>
+										<f:selectItems  value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_AVTOR, now, docList.currentLang)}" 
+										    var="period" itemLabel="#{period.tekst}" itemValue="#{period.code}" />
+									</p:selectOneMenu>
+								</div>
+								
+								<!-- Заглавие -->
+								<div class="p-col-12 p-sm-6">
+									<div class="form-label">#{labels['docList.zaglavie']}</div>
+									<p:inputText value="#{docList.searchEuroDoc.partZagl}"/>
+								</div>
+								
+								<!-- Междуинституционално досие -->
+								<div class="p-col-12 p-md-6">
+									<div class="form-label">#{labels['docList.mejduinstitucionalnoDosie']}</div>
+									<div class="ui-inputgroup inputgroup-bordered">
+										
+										<p:inputText value="#{docList.searchEuroDoc.procGodina}" maxlength="4" placeholder="#{labels['docList.godina']}">
+											<p:keyFilter regEx="/[\d]/"/>
+										</p:inputText>
+										
+										<p:inputText value="#{docList.searchEuroDoc.procNomer}" placeholder="#{labels['docList.nomer']}">
+											<p:keyFilter regEx="/[\d]/"/>
+										</p:inputText>
+										
+										<p:selectOneMenu var="i" value="#{docList.procSeria}">
+											<f:selectItem itemValue="#{null}" itemLabel="" />
+											<f:selectItems value="#{docList.procOptions}" var="option" itemLabel="#{option.tekst}" itemValue="#{option}" />
+											<p:column>
+						                       #{i.tekst}
+					                      	</p:column>
+											<p:column>
+						                       #{i.dopInfo}
+						                    </p:column>
+						                    <p:ajax event="change" partialSubmit="true" process="@this" listener="#{docList.actionSelectProc}" />
+										</p:selectOneMenu> 
+										
+									</div>
+								</div>
+							
+								<!-- Номер -->
+								<div class="p-col-6 p-md-3">
+									<div class="form-label">#{labels['docList.nomer']}</div>
+									<p:inputText value="#{docList.searchEuroDoc.uid}"/>
+								</div>
+								
+								<!-- CELEX -->
+								<div class="p-col-6 p-md-3">
+									<div class="form-label">#{labels['docList.celex']}</div>
+									<p:inputText value="#{docList.searchEuroDoc.celex}"/>
+								</div>
+								
+							</div>
+							
+							<!-- Бутони -->
+							<div class="filter-buttons">
+								<p:commandButton icon="fas fa-search" value="#{ui_labels['general.search']}" actionListener="#{docList.actionSearch()}"
+										id="btnSearch" update="resultTableWrapper filter" partialSubmit="true"
+										process="@this filter" />
+								<p:defaultCommand target="btnSearch" />
+						
+								<p:commandButton icon="fas fa-eraser" value="#{ui_labels['general.clear']}" actionListener="#{docList.actionClear()}"
+										 id="btnClear" update="resultTableWrapper filter" partialSubmit="true" process="@this" styleClass="ui-button-warning p-ml-2" />	
+							</div>
+								
+						</div>	
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Резултати -->
+		<div jsf:id="resultTableWrapper" class="margin-top">
+			<div class="card">
+				<div class="p-grid">
+				
+					<div class="p-col-12">
+						<div class="table-toolbar">
+							<p:commandButton icon="fas fa-file" action="#{docList.actionGotoNew}" ajax="false" value="#{labels['general.new']}" styleClass="ui-button-success"  rendered="#{isView != 1}"/>
+							<span class="p-mx-2" jsf:rendered="#{isView != 1 and docList.docsList != null}"> 
+								<span class="fas fa-ellipsis-v" />
+							</span>
+							<h:outputText value="#{ui_labels['general.reportResult']} #{docList.docsList.rowCount}" styleClass="form-label" rendered="#{docList.docsList != null}" />
+						</div>
+
+						<p:dataTable id="resultTable" value="#{docList.docsList}" var="row" lazy="true" 
+							rowIndexVar="index" sortMode="single" emptyMessage="#{ui_labels['general.norows']}"
+							rows="10" rowsPerPageTemplate="5,10,15" paginatorPosition="bottom" paginator="true"
+							paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}">
+						
+							<p:column width="25" headerText="#{ui_labels['general.No-symbol']}" exportable="false">
+								<h:outputText value="#{index + 1}" />
+							</p:column>	
+							
+							<p:column width="35" exportable="false">
+								<p:commandButton icon="fas fa-edit" action="#{docList.actionGotoEdit(row[0])}" ajax="false" title="#{ui_labels['general.edit']}" rendered="#{isView != 1}" />
+								<p:button icon="fas fa-eye" href="#{docList.actionGotoView(row[0])}" target="_blank"  title="#{ui_labels['general.view']}" rendered="#{isView == 1}" />
+							</p:column>
+							
+							<p:column headerText="#{labels['docList.signatura']}" width="130" sortBy="#{row.A05}">
+								<h:outputText value="#{row[4]}" />
+							</p:column>	
+							
+							<p:column headerText="#{labels['docList.zaglavieBg']}" sortBy="#{row.A06}">
+								<h:outputText value="#{row[5]}" />
+							</p:column>	
+							
+							<p:column headerText="#{labels['docList.zaglavieEn']}" sortBy="#{row.A07}">
+								<h:outputText value="#{row[6]}" />
+							</p:column>	
+							
+							<f:facet name="{Exporters}">
+								<div style="float: left">
+	
+									<h:commandLink id="excel">
+										<h:graphicImage library="images" name="excel2.png" />
+										<p:dataExporter type="xls" target="resultTable" fileName="euroDocsList" postProcessor="#{docList.postProcessXLS}"/>
+									</h:commandLink>
+	
+									<h:commandLink id="pdf">
+										<h:graphicImage library="images" name="pdf.png" />
+									
+									  <p:dataExporter type="pdf" target="resultTable" fileName="euroDocsList"	
+									    preProcessor="#{docList.preProcessPDF}"   encoding="windows-1251" options="#{docList.pdfOptions()}" />
+									</h:commandLink>
+									
+									<h:commandLink id="csv">
+										<h:graphicImage library="images" name="csv.png" />
+										<p:dataExporter type="csv" target="resultTable" fileName="euroDocsList" encoding="CP1251" />
+									</h:commandLink>
+	
+								</div>
+							</f:facet>
+								
+						</p:dataTable>
+					</div>
+				
+				</div>
+				
+			</div>
+		</div>
+		
+	</h:form>
+	
+</ui:composition>

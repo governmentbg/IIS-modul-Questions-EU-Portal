@@ -1,0 +1,90 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:ibg="http://java.sun.com/jsf/composite/components">
+
+		
+		<h:form id="formEuroBuletin">
+
+			<div class="#{guestPreferences.containerPosition}">
+			
+				<p:toolbar id="tlbButton" rendered="#{isView eq 0}">
+
+					<f:facet name="left">
+						<!-- Запис -->
+						<p:commandButton icon="fas fa-save" value="#{ui_labels['general.save']}" id="btnSave"
+							update="euroBuletin tlbButton" partialSubmit="true" process="euroBuletin @this" actionListener="#{euroBuletinEdit.actionSave}">
+						</p:commandButton>
+					</f:facet>
+
+					<f:facet name="right">	
+						<!-- Изтриване -->
+						<p:commandButton icon="fas fa-times" id="btnDelete" value="#{ui_labels['general.delete']}" update="euroBuletin tlbButton"
+							partialSubmit="true" process="euroBuletin @this" rendered="#{euroBuletinEdit.buletin.id ne null}"
+							styleClass="ui-button-danger" actionListener="#{euroBuletinEdit.actionDelete}">
+							<p:confirm header="#{ui_labels['general.comfirmation']}" message="#{beanMessages['euroBuletinEdit.sureDeleteBuletin']}" icon="ui-icon-alert" />
+						</p:commandButton>
+					</f:facet>
+
+				</p:toolbar>
+			
+				<div class="card"  jsf:id="euroBuletin">
+
+					<div class="p-grid ui-fluid" jsf:id="dataBuletin">
+					<ui:remove> <!-- Номер бюлетин  - това е ID на бюлетина!!!!--> </ui:remove>
+						<div class="p-col-12 p-sm-6 p-md-3 p-lg-2 p-xl-2 ui-fluid">
+							<h:outputText value="#{labels['euroBuletinSearch.nomer']}" styleClass="form-label" />
+							<p:inputText id="nomerBuletin" value="#{euroBuletinEdit.buletin.nomer}" readonly="true"/>
+						
+						</div>
+						
+						<!-- Дата  -->
+						<div class="p-col-12 p-sm-6 p-md-3 p-lg-2 p-xl-2 ui-fluid">
+							<h:outputText value="#{labels['euroBuletinSearch.date']}"
+								styleClass="form-label req" rendered="#{isView eq 0}" />
+								<h:outputText value="#{labels['euroBuletinSearch.date']}"
+								styleClass="form-label" rendered="#{isView eq 1}" />
+							
+							<p:datePicker  id="dateBuletin"  showIcon="true" mask="true"   pattern="dd.MM.yyyy" locale="bg" 
+								    value="#{euroBuletinEdit.buletin.datBuletin}" disabled="#{isView eq 1}" >
+							</p:datePicker>
+						</div>
+						
+						<!-- Заглавие -->
+						<div class="p-col-12 p-sm-12 p-md-6 p-lg-5 p-xl-5 ui-fluid">
+							<h:outputText value="#{labels['euroBuletinSearch.title']}" styleClass="form-label" />
+							<p:inputText id="titleBuletin" value="#{euroBuletinEdit.buletin.zaglavie}" readonly="#{isView eq 1}"/>
+						</div>	
+						
+						<!-- Забележка -->
+						<div class="p-col-12 p-sm-12 p-md-12 p-lg-9 p-xl-9 ui-fluid">
+							<h:outputText value="#{labels['euroAct.note']}" styleClass="form-label" />
+							<p:inputTextarea id="noteBuletin" value="#{euroBuletinEdit.buletin.donInfo}" rows="3" readonly="#{isView eq 1}"/>
+						</div>
+						
+						<h:panelGroup id="filePanel" class="p-col-12 p-sm-12 p-md-12 p-lg-9 p-xl-9 ui-fluid">	
+ 
+							<ibg:compFileUploadL listObj="#{euroBuletinEdit.filesList}"
+								codeObj="#{EuroConstants.CODE_ZNACHENIE_JOURNAL_EURO_BULETIN}" header="false" 
+								saveFirst="false"
+								autoSave="#{(euroBuletinEdit.buletin.id eq null) ? 'false' : 'true'}"
+						 		idObj="#{euroBuletinEdit.buletin.id}"
+						 		hideDel= "#{isView eq 1}"
+						 		view="#{isView eq 1}"/>  
+						</h:panelGroup>	
+						
+					</div>
+					
+				</div>	
+				
+	
+			
+			</div>
+			
+		</h:form>
+	
+</ui:composition>

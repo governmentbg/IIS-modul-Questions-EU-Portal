@@ -1,0 +1,167 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui">
+
+		<h:form id="euroBuletinSearchForm">
+			<div class="container" style="width:780px">
+				<!-- FILTER -->
+				<h:panelGroup id="panelFilter">
+					<div class="card">
+
+						<div class="p-grid">
+
+							<!-- Дата от -->
+							<div class="p-col-12 p-sm-6 p-md-4 p-lg-4 p-xl-4 ui-fluid">
+								<h:outputText value="#{ui_labels['general.dataOt']}"
+									styleClass="form-label" />
+								<p:datePicker  id="dateFrom"  showIcon="true" mask="true"   pattern="dd.MM.yyyy" locale="bg" 
+								    value="#{euroBuletinSearchBean.buletinSearch.datBuletinOt}" >
+								   <p:ajax event="change" update="idPerR" listener="#{euroBuletinSearchBean.changeDate}" />
+									<p:ajax event="dateSelect" update="idPerR" listener="#{euroBuletinSearchBean.changeDate}" />
+								</p:datePicker>
+							</div>
+							<!-- Дата до -->
+							<div class="p-col-12 p-sm-6 p-md-4 p-lg-4 p-xl-4 ui-fluid">
+								<h:outputText value="#{ui_labels['general.dataDo']}"
+									styleClass="form-label" />
+								<p:datePicker  id="dateTo"  showIcon="true" mask="true"   pattern="dd.MM.yyyy" locale="bg" 
+								    value="#{euroBuletinSearchBean.buletinSearch.datBuletinDo}" >
+								    <p:ajax event="change" update="idPerR"
+										listener="#{euroBuletinSearchBean.changeDate}" />
+									<p:ajax event="dateSelect" update="idPerR"
+										listener="#{euroBuletinSearchBean.changeDate}" />
+								</p:datePicker>
+							</div>
+							<!-- Период -->
+							<div class="p-col-12 p-sm-12 p-md-4 p-lg-4 p-xl-4 ui-fluid">
+								<h:outputText value="#{ui_labels['general.period']}"
+									styleClass="form-label" />
+								<p:selectOneMenu id="idPerR"
+									value="#{euroBuletinSearchBean.period}" height="250">
+									<f:selectItem value="#{null}" itemValue="#{null}" />
+									<f:selectItems
+										value="#{systemData.getSysClassification(euroBuletinSearchBean.classifPreiod, now, euroBuletinSearchBean.currentLang)}"
+										var="clPer" itemLabel="#{clPer.tekst}"
+										itemValue="#{clPer.code}" />
+									<p:ajax event="change" update="idPerR dateFrom dateTo"
+										listener="#{euroBuletinSearchBean.changePeriod}" />
+								</p:selectOneMenu>
+							</div>
+						</div>
+						<div class="filter-buttons">
+							<!-- Бутон Търсене -->
+							<p:commandButton icon="fas fa-search"
+								value="#{ui_labels['general.search']}" id="btnSearch"
+								update="resultTable panelFilter" partialSubmit="true"
+								process="@this panelFilter resultTable"
+								actionListener="#{euroBuletinSearchBean.actionSearch}" />
+							<p:defaultCommand target="btnSearch" />
+
+							<!-- Бутон Изчистване -->
+							<p:commandButton icon="fas fa-eraser"
+								value="#{ui_labels['general.clear']}" id="btnClear"
+								update="resultTable panelFilter" partialSubmit="true"
+								process="@this panelFilter resultTable"
+								actionListener="#{euroBuletinSearchBean.actionClear}"
+								styleClass="ui-button-warning p-ml-2" />
+						</div>
+
+					</div>
+				</h:panelGroup>
+			</div>
+
+			<h:panelGroup id="resultTable" layout="block" styleClass="margin-top">
+			<p:commandButton icon="fas fa-file"
+							action="#{euroBuletinSearchBean.actionGotoNew}" ajax="false"
+							value="#{labels['euroBuletinSearch.newBuletin']}"
+							styleClass="ui-button-success" rendered="#{isView eq 0}"/>
+				<h:panelGroup layout="block" styleClass="card" rendered="#{euroBuletinSearchBean.buletinList ne null}">
+					<div class="table-toolbar">
+						<span class="p-mx-2" jsf:rendered="#{euroBuletinSearchBean.buletinList.rowCount > 0 and isView eq 0}">
+							<span class="fas fa-ellipsis-v" />
+						</span>
+
+						<h:outputText
+							value="#{ui_labels['general.reportResult']} #{euroBuletinSearchBean.buletinList.rowCount}"
+							styleClass="form-label"
+							rendered="#{euroBuletinSearchBean.buletinList.rowCount > 0}" />
+
+					</div>
+
+					<p:dataTable id="tblEuroBuletinList" var="row"
+						value="#{euroBuletinSearchBean.buletinList}" lazy="true"
+						rowIndexVar="idx" emptyMessage="#{ui_labels['general.norows']}"
+						rows="15" sortMode="single" reflow="true"
+						paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+						rowsPerPageTemplate="5,10,15,20,25" paginatorPosition="bottom"
+						paginatorAlwaysVisible="true" paginator="true">
+
+						<f:facet name="{Exporters}">
+							<div style="float: left">
+								<h:commandLink id="excel">
+									<h:graphicImage library="images" name="excel2.png" />
+									<p:dataExporter type="xls" target="tblEuroBuletinList"
+										fileName="euroBuletinListXls"
+										postProcessor="#{euroBuletinSearchBean.postProcessXLS}" />
+								</h:commandLink>
+
+								<h:commandLink id="pdf">
+									<h:graphicImage library="images" name="pdf.png" />
+									<p:dataExporter type="pdf" target="tblEuroBuletinList" fileName="euroBuletinListPdf"	
+									   preProcessor="#{euroBuletinSearchBean.preProcessPDF}"   encoding="windows-1251" options="#{euroBuletinSearchBean.pdfOptions()}" />
+								</h:commandLink>
+
+								<h:commandLink id="csv">
+									<h:graphicImage library="images" name="csv.png" />
+									<p:dataExporter type="csv" target="tblEuroBuletinList"
+										fileName="euroBuletinListCsv" encoding="CP1251" />
+								</h:commandLink>
+							</div>
+						</f:facet>
+
+						<p:column exportable="false"
+							headerText="#{ui_labels['general.No-symbol']}" style="width:30px">
+							<h:outputText value="#{idx + 1}" />
+						</p:column>
+
+						<p:column exportable="false" style="width:35px">
+							<p:commandButton icon="fas fa-edit"
+								action="#{euroBuletinSearchBean.actionGoto(0, row)}"
+								ajax="false" title="#{ui_labels['general.edit']}"
+								styleClass="btn-new"
+								rendered="#{isView eq 0}" />
+								
+							<p:button icon="fas fa-eye"
+								href="#{euroBuletinSearchBean.actionGoto(1, row)}" target="_blank"
+								title="#{ui_labels['general.view']}" rendered="#{isView eq 1}">
+							</p:button>	
+						</p:column>
+
+						<p:column sortBy="#{row.A02}"
+							headerText="#{labels['euroBuletinSearch.nomer']}" style="width:100px">
+							<h:outputText value="#{row[1]}" />
+						</p:column>
+
+						<p:column sortBy="#{row.A03}"
+							headerText="#{labels['euroBuletinSearch.date']}" style="width:100px">
+							<h:outputText value="#{row[2]}">	
+								<f:convertDateTime pattern="dd.MM.yyyy" timeZone="#{euroBuletinSearchBean.timeZone}"/>
+							</h:outputText>	
+						</p:column>
+
+						<p:column sortBy="#{row.A03}"
+							headerText="#{labels['euroBuletinSearch.title']}" style="width:*">
+							<h:outputText value="#{row[3]}" />
+						</p:column>
+
+					</p:dataTable>
+
+				</h:panelGroup>
+
+			</h:panelGroup>
+		</h:form>
+
+</ui:composition>

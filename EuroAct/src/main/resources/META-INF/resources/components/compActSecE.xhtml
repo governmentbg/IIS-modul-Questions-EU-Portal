@@ -1,0 +1,145 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+	  xmlns:c="http://java.sun.com/jstl/core"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:cc="http://java.sun.com/jsf/composite"
+	  xmlns:pe="http://primefaces.org/ui/extensions"
+	  xmlns:ibg="http://java.sun.com/jsf/composite/components" > 	  
+	  
+
+<cc:interface componentType="compActSecE">
+   		 
+   <cc:attribute name="act" 		type="java.lang.Object"	 shortDescription="обект акт" default="#{null}"/>
+   <cc:attribute name="readonly"       	type="java.lang.Boolean" shortDescription="Само за разглеждане" default="false" />
+   
+</cc:interface>
+
+<cc:implementation>
+
+ <f:event type="preRenderComponent" listener="#{cc.init()}" /> <!--  За да се инициализира компонентата-->
+			
+		<div class="timeline-row" jsf:rendered="#{cc.showMe}">
+			
+			
+			<div jsf:id="panelDataSecE" >
+			
+			<div jsf:rendered="#{!cc.attrs.readonly}">
+				<p:commandLink class="extended-search-toggle" onclick="toggleSection(this, '##{cc.clientId}:dataActSecE'); return false;" id="titleLink">
+					<h:outputText value="#{labels['euroAct.addAct']}" />
+					<i class="fas fa-caret-right"></i>
+				</p:commandLink>
+				
+				<p:commandButton id="bntNewAB2" styleClass="btn-new p-ml-2" update="#{cc.clientId}:dataActSecE" action="#{cc.actionNewSecE}"
+					icon="fas fa-plus" 
+					oncomplete="toggleSection(this, '##{cc.clientId}:dataActSecE')" />
+			</div>
+			
+			<div jsf:id="dataActSecE"   style="display: none;" jsf:rendered="#{!cc.attrs.readonly}">
+				<div jsf:id="dataActSecEGrid" class="p-grid ui-fluid">
+					
+					
+					<div class="p-col-12">
+						<p:toolbar>
+							<f:facet name="left">
+								<p:commandButton icon="fas fa-save" action="#{cc.actionSaveSecE}" value="#{ui_labels['general.save']}"
+																update="#{cc.clientId}:dataActSecEGrid #{cc.clientId}:tblSecEList" />
+							</f:facet>
+						</p:toolbar>
+						<div class="p-grid ui-fluid">
+
+							<div class="p-col-12">
+								<h:outputText value="#{labels['euroAct.naim']}" styleClass="form-label req" />
+								<p:inputText value="#{cc.secENew.name}" id="nameSecE" />
+							</div>
+
+							<!-- URL-->
+							<div
+								class="p-col-12 ">
+								<h:outputText value="#{labels['euroActEdit.actUrl']}" styleClass="form-label" />
+								<p:inputText id="secEUrl" value="#{cc.secENew.url}" />
+							</div>
+
+							<!-- Резюме-->
+							<div class="p-col-12">
+								<h:outputText value="#{labels['euroAct.resume']}" styleClass="form-label" />
+								<div class="ui-inputgroup">
+									<p:inputTextarea id="noteSEInp" value="#{cc.secENew.note}" rows="5" autoResize="false" style="width:99%">
+										<p:ajax event="change" update="#{cc.clientId}:noteSE" />
+									</p:inputTextarea>
+									<p:commandButton icon="fas fa-book-open" title="#{labels['euroAct.resume']}" id="btnNoteSecE" styleClass="inputgroup-button" />
+								</div>
+								
+								<p:overlayPanel for="btnNoteSecE" appendTo="@form" showEffect="fade" dynamic="true" hideEffect="fade" dismissable="false" style="width:90%" showCloseIcon="true" my="left center" at="right center">
+									<p:inputTextarea id="noteSE" value="#{cc.secENew.note}" rows="30" style="width:100%;" autoResize="false">
+										<p:ajax event="change" update="#{cc.clientId}:noteSEInp" />
+									</p:inputTextarea>
+								</p:overlayPanel>
+							</div>
+							
+							
+						</div>
+					</div>
+					<div class="p-col-12">
+						<hr/>
+					</div>
+				</div>
+			</div>
+			<div jsf:id="tblSecEList">
+			<p:dataTable var="row" value="#{cc.secEList}" rows="5" rowIndexVar="idx"  rendered="#{!empty cc.secEList}"
+				style="width: 100%" scrollable="true" scrollWidth="100%" emptyMessage="#{ui_labels['general.norows']}"
+				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} "
+				rowsPerPageTemplate="5,10,15,20,25" paginatorPosition="bottom" paginator="true" paginatorAlwaysVisible="true">
+		
+				<p:column width="25" exportable="false" headerText="#{ui_labels['general.No-symbol']}">
+					<h:outputText value="#{idx + 1}" />
+				</p:column>
+		
+				<p:column width="35" exportable="false"  rendered="#{!cc.attrs.readonly}">
+					<p:commandButton icon="fas fa-edit" action="#{cc.actionEditSecE(row ,idx)}" title="#{ui_labels['general.edit']}" update="#{cc.clientId}:dataActSecE"
+						oncomplete="toggleSection(this, '##{cc.clientId}:dataActSecE')"/>
+				</p:column>
+		
+				<p:column width="*" sortBy="#{row.name}" headerText="#{labels['euroAct.naim']}">
+					<h:outputText value="#{row.name}" />
+				</p:column>
+
+				<p:column width="35" exportable="false" headerText="#{labels['euroActEdit.actUrl']}">
+					<p:linkButton href="#{row.url}" title="#{labels['euroActEdit.actUrl']}" target="_blank" icon="fas fa-link" rendered="#{row.url ne null and !empty row.url}" />
+				</p:column>
+
+				<p:column width="55" style="text-align: center;" exportable="false" headerText="#{labels['euroAct.resume']}">
+					<p:commandButton update="#{cc.clientId}:textNoteSecE" icon="fas fa-book-open" title="#{labels['euroAct.resume']}"  oncomplete="PF('panelNoteSecE').show('#{component.clientId}')" >
+						<f:setPropertyActionListener value="#{row}" target="#{cc.tmpSecENew}" />
+					</p:commandButton>
+					
+				</p:column>
+				
+				<p:column width="35" exportable="false"  rendered="#{!cc.attrs.readonly}">
+					<p:commandButton icon="fas fa-trash" action="#{cc.actionDeleteSecE(row)}" onclick="if(!confirm('#{beanMessages['general.confirmDeleteMsg']}'))return false;"
+						title="#{ui_labels['general.delete']}" styleClass="ui-button-danger" update="#{cc.clientId}:tblSecEList #{cc.clientId}:dataActSecE" />
+				</p:column>
+			
+			</p:dataTable>
+			
+			<p:overlayPanel id="panelNoteSecE" widgetVar="panelNoteSecE" style="width:90%" appendTo="@form" modal="false"  showEffect="fade" hideEffect="fade" dismissable="false" showCloseIcon="true" >
+			
+				<p:inputTextarea id="textNoteSecE" rows="7" value="#{cc.tmpSecENew.note}" style="width:100%;" autoResize="true" readonly="true"/>
+					
+			</p:overlayPanel>
+			
+			</div>
+			
+			
+			
+			</div>
+			
+			
+		</div>
+
+
+</cc:implementation>
+
+</ui:composition>

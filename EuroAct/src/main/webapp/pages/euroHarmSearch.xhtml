@@ -1,0 +1,292 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	template="/template/template.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<!-- <f:viewAction action="#{userData.checkPageAccess(null)}" onPostback="false" /> -->
+			<f:importConstants type="com.ib.euroact.system.EuroConstants" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="title">#{navTexts['/pages/euroHarmSearch.xhtml']}</ui:define>
+
+	<ui:define name="viewname">
+		<li>#{navTexts['/pages/euroHarmSearch.xhtml']}</li>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<h:form id="formEuroHarmSearch">
+			<div class="container #{guestPreferences.containerPosition}">
+
+				<!--ФИЛТЪР -->
+				<h:panelGroup id="panelFilter">
+					<div class="card">
+						<div class="p-grid ui-fluid p-align-end">
+
+							<!--ДЕЛОВОДЕН НОМЕР -->
+							<div class="p-col-12 p-sm-2 p-md-2 p-lg-2 p-xl-2  ui-fluid">
+								<h:outputText value="#{labels['euroHarmSearch.delNum']}"
+									styleClass="form-label" />
+								<p:inputText value="#{euroHarmSearchBean.euroHarmSearch.rnDoc}" />
+							</div>
+
+							<!--ДАТА ОТ-->
+							<div class="p-col-12 p-sm-2 p-md-2 p-lg-2 p-xl-2  ui-fluid">
+								<h:outputText value="#{ui_labels['general.dataOt']}"
+									styleClass="form-label" />
+								<p:datePicker  id="dateOtReg"  showIcon="true" mask="true"   pattern="dd.MM.yyyy" locale="bg" 
+								    value="#{euroHarmSearchBean.euroHarmSearch.datZakonOt}" >
+								    <p:ajax event="change" update="idPerR" listener="#{euroHarmSearchBean.changeDate}" />
+									<p:ajax event="dateSelect" update="idPerR" listener="#{euroHarmSearchBean.changeDate}" />
+								</p:datePicker>
+							</div>
+
+							<!--ДАТА ДО-->
+							<div class="p-col-12 p-sm-2 p-md-2 p-lg-2 p-xl-2  ui-fluid">
+								<h:outputText value="#{ui_labels['general.dataDo']}"
+									styleClass="form-label" />
+								<p:datePicker  id="dateDoReg"  showIcon="true" mask="true"   pattern="dd.MM.yyyy" locale="bg" 
+								    value="#{euroHarmSearchBean.euroHarmSearch.datZakonDo}" >
+								    <p:ajax event="change" update="idPerR" listener="#{euroHarmSearchBean.changeDate}" />
+									<p:ajax event="dateSelect" update="idPerR" listener="#{euroHarmSearchBean.changeDate}" />
+								</p:datePicker>
+							</div>
+
+							<!--ПЕРИОД-->
+							<div class="p-col-12 p-sm-2 p-md-2 p-lg-2 p-xl-2  ui-fluid">
+								<h:outputText value="#{ui_labels['general.period']}"
+									styleClass="form-label" />
+								<p:selectOneMenu id="idPerR"
+									value="#{euroHarmSearchBean.periodR}">
+									<f:selectItem value="#{null}" itemValue="#{null}" />
+									<f:selectItems
+										value="#{systemData.getSysClassification(euroHarmSearchBean.periodNoFuture, now, euroHarmSearchBean.currentLang)}"
+										var="clPer" itemLabel="#{clPer.tekst}"
+										itemValue="#{clPer.code}" />
+									<p:ajax event="change" update="idPerR dateOtReg dateDoReg"
+										listener="#{euroHarmSearchBean.changePeriodR}" />
+								</p:selectOneMenu>
+							</div>
+						</div>
+
+						<div class="p-grid ui-fluid p-align-end">
+
+							<!-- НАИМЕНОВАНИЕ -->
+							<div class="p-col-12 p-sm-4 p-md-4 p-lg-4 p-xl-4 ui-fluid">
+								<h:outputText value="#{labels['euroHarmSearch.naim']}"
+									styleClass="form-label" />
+								<p:inputText id="naimHarm"
+									value="#{euroHarmSearchBean.euroHarmSearch.naim}" />
+							</div>
+
+							<!-- СЪСТОЯНИЕ -->
+							<div class="p-col-12 p-sm-4 p-md-4 p-lg-4 p-xl-4 ui-fluid">
+								<h:outputText value="#{labels['euroHarmSearch.sastoianie']}"
+									styleClass="form-label" />
+								<p:selectOneMenu
+									value="#{euroHarmSearchBean.euroHarmSearch.sastoianie}"
+									autoWidth="false">
+									<f:selectItem value="#{null}" itemValue="#{null}" />
+									<f:selectItems
+										value="#{systemData.getSysClassification(EuroConstants.CODE_CLASS_SASTOIANIE, now, euroHarmSearchBean.currentLang)}"
+										var="period" itemLabel="#{period.tekst}"
+										itemValue="#{period.code}" />
+								</p:selectOneMenu>
+							</div>
+
+							<!-- СЪСТОЯНИЕ/ЕТАП-->
+							<div class="p-col-12 p-sm-4 p-md-4 p-lg-4 p-xl-4 ui-fluid">
+								<h:outputText value="#{labels['euroHarmSearch.etap']}"
+									styleClass="form-label" />
+								<p:selectOneMenu
+									value="#{euroHarmSearchBean.euroHarmSearch.sastoianieEtap}"
+									autoWidth="false">
+									<f:selectItem value="#{null}" itemValue="#{null}" />
+									<f:selectItems
+										value="#{systemData.getSysClassification(EuroConstants.CODE_CLASS_ETAP_STATUS, now, euroHarmSearchBean.currentLang)}"
+										var="period" itemLabel="#{period.tekst}"
+										itemValue="#{period.code}" />
+								</p:selectOneMenu>
+							</div>
+
+
+							<!-- ПО ГЛАВА-->
+							<div class="p-col-12 p-sm-4 p-md-4 p-lg-4 p-xl-4 ui-fluid">
+								<h:outputText value="#{labels['euroHarmSearch.poGlava']}"
+									styleClass="form-label" />
+								<p:selectOneMenu
+									value="#{euroHarmSearchBean.euroHarmSearch.glava}"
+									autoWidth="false">
+									<f:selectItem value="#{null}" itemValue="#{null}" />
+									<f:selectItems
+										value="#{systemData.getSysClassification(EuroConstants.CODE_CLASS_HARM_GLAVA, now, euroHarmSearchBean.currentLang)}"
+										var="period" itemLabel="#{period.tekst}"
+										itemValue="#{period.code}" />
+								</p:selectOneMenu>
+							</div>
+
+							<!-- ОТГОВАРЯЩ-->
+							<div class="p-col-12 p-sm-4 p-md-4 p-lg-4 p-xl-4 ui-fluid">
+								<h:outputText value="#{labels['euroHarmSearch.otgovariasht']}"
+									styleClass="form-label" />
+								<p:selectOneMenu
+									value="#{euroHarmSearchBean.euroHarmSearch.otgovariast}"
+									autoWidth="false">
+									<f:selectItem value="#{null}" itemValue="#{null}" />
+									<f:selectItems
+										value="#{systemData.getSysClassification(EuroConstants.CODE_SYSCLASS_DIR_ES, now, euroHarmSearchBean.currentLang)}"
+										var="period" itemLabel="#{period.tekst}"
+										itemValue="#{period.code}" />
+								</p:selectOneMenu>
+							</div>
+
+							<!-- ПРИОРИТЕТЕН-->
+							<div class="p-col-12 p-sm-2 p-md-2 p-lg-2  p-xl-2  ui-fluid"
+								style="display: flex; align-items: center;">
+								<p:selectBooleanCheckbox
+									value="#{euroHarmSearchBean.euroHarmSearch.priority}"
+									itemLabel="#{labels['euroHarmSearch.priority']}" />
+							</div>
+
+						</div>
+
+
+						<!--БУТОНИ-->
+						<div class="filter-buttons">
+							<p:commandButton icon="fas fa-search"
+								value="#{ui_labels['general.search']}" id="btnSearch"
+								update="panelDataTable panelFilter" partialSubmit="true"
+								process="@this panelFilter panelDataTable"
+								actionListener="#{euroHarmSearchBean.actionSearch}" />
+
+							<p:commandButton icon="fas fa-eraser"
+								value="#{ui_labels['general.clear']}" id="btnClear"
+								update="panelDataTable panelFilter" partialSubmit="true"
+								process="@this panelFilter panelDataTable"
+								actionListener="#{euroHarmSearchBean.actionClear}"
+								styleClass="ui-button-warning p-ml-2" />
+						</div>
+					</div>
+				</h:panelGroup>
+			</div>
+
+			<h:panelGroup id="panelDataTable" layout="block"
+				styleClass="margin-top">
+
+				<h:panelGroup layout="block" styleClass="card"
+					rendered="#{euroHarmSearchBean.euroHarmList!= null}">
+
+					<div class="table-toolbar">
+
+						<h:outputText
+							value="#{ui_labels['general.reportResult']} #{euroHarmSearchBean.euroHarmList.rowCount}"
+							styleClass="form-label"
+							rendered="#{euroHarmSearchBean.euroHarmList.rowCount > 0}" />
+					</div>
+
+					<!--РЕЗУЛТАТ-->
+					<h:panelGroup id="harmResultTable">
+
+						<p:dataTable id="tblEuroHarmList" var="row" lazy="true"
+							rowIndexVar="idx" value="#{euroHarmSearchBean.euroHarmList}"
+							emptyMessage="#{ui_labels['general.norows']}" rows="15"
+							sortMode="single" reflow="true"
+							paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {Exporters}"
+							rowsPerPageTemplate="5,10,15,20,25" paginatorPosition="bottom"
+							paginatorAlwaysVisible="true" paginator="true">
+
+							<!--ЕКСПОРТИ-->
+							<f:facet name="{Exporters}">
+								<div style="float: left">
+
+									<h:commandLink id="excel">
+										<h:graphicImage library="images" name="excel2.png" />
+										<p:dataExporter type="xls" target="tblEuroHarmList"
+											fileName="EuroHarmListXls"
+											postProcessor="#{euroHarmSearchBean.postProcessXLS}" />
+									</h:commandLink>
+
+									<h:commandLink id="pdf">
+										<h:graphicImage library="images" name="pdf.png" />
+										<p:dataExporter type="pdf" target="tblEuroHarmList" fileName="EuroHarmListPdf"	
+									   	preProcessor="#{euroHarmSearchBean.preProcessPDF}"   encoding="windows-1251" options="#{euroHarmSearchBean.pdfOptions()}" />											
+									</h:commandLink>
+
+									<h:commandLink id="csv">
+										<h:graphicImage library="images" name="csv.png" />
+										<p:dataExporter type="csv" target="tblEuroHarmList"
+											fileName="EuroHarmListCsv" encoding="CP1251" />
+									</h:commandLink>
+								</div>
+							</f:facet>
+
+							<!--КОЛОНИ-->
+							<p:column width="30" exportable="false"
+								headerText="#{ui_labels['general.No-symbol']}">
+								<h:outputText value="#{idx + 1}" />
+							</p:column>
+
+							<p:column width="30" exportable="false">
+								<p:button icon="fas fa-eye"
+									href="#{euroHarmSearchBean.actionGoto(row[0])}" target="_blank"
+									title="#{ui_labels['general.view']}">
+								</p:button>
+							</p:column>
+
+							<p:column width="30" exportable="false"
+								style="text-align: center;" sortBy="#{row.PRIORITET}">
+								<i class="fas fa-flag" jsf:rendered="#{row[1] == 1}"
+									jsf:id="prLabel" />
+								<p:tooltip id="lIcon" rendered="#{row[1] == 1}"
+									value="#{labels['euroHarmSearch.priority']}" for="prLabel"
+									escape="false" />
+							</p:column>
+
+							<!-- при експорт??? -->
+							<p:column width="90"
+								headerText="#{labels['euroHarmSearch.priority']}"
+								style="display: none">
+								<h:outputText
+									value="#{systemData.decodeItem(euroHarmSearchBean.sysClassifDaNe, row[1], euroHarmSearchBean.currentLang, now)}" />
+							</p:column>
+
+							<p:column width="120" sortBy="#{row.NOMER_DOC}"
+								headerText="#{labels['euroHarmSearch.delNum']}">
+								<h:outputText value="#{row[2]}" />
+							</p:column>
+
+							<p:column width="90" headerText="#{ui_labels['general.date']}"
+								sortBy="#{row.DAT_DOC}">
+								<h:outputText value="#{row[3]}">
+									<f:convertDateTime pattern="dd.MM.yyyy"
+										timeZone="#{euroHarmSearchBean.timeZone}" />
+								</h:outputText>
+							</p:column>
+
+							<p:column headerText="#{labels['euroHarmSearch.naim']}"
+								sortBy="#{row.IME}">
+								<h:outputText value="#{row[4]}" />
+							</p:column>
+
+							<p:column width="150"
+								headerText="#{labels['euroHarmSearch.sastoianie']}"
+								sortBy="#{row.SASTOIANIE}">
+								<h:outputText
+									value="#{systemData.decodeItem(EuroConstants.CODE_CLASS_SASTOIANIE, row[5], 1, now)}" />
+							</p:column>
+
+						</p:dataTable>
+					</h:panelGroup>
+				</h:panelGroup>
+			</h:panelGroup>
+
+		</h:form>
+
+	</ui:define>
+</ui:composition>
